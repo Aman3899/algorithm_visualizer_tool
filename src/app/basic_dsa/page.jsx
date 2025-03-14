@@ -11,43 +11,48 @@ export default function DSAContentPage() {
     const dataStructures = [
         {
             name: 'Linked List',
-            path: '/dsa/linked_list',
+            path: '/basic_dsa/linked_list',
             description: 'A linear data structure where elements are linked using pointers.',
+            useCase: 'Implementing stacks, queues, and graphs.'
+        },{
+            name: 'Doubly Linked List',
+            path: '/basic_dsa/doubly_linked_list',
+            description: 'A linear data structure where elements are linked using double pointers.',
             useCase: 'Implementing stacks, queues, and graphs.'
         },
         {
             name: 'Array',
-            path: '/dsa/array',
+            path: '/basic_dsa/array',
             description: 'A collection of items stored at contiguous memory locations.',
             useCase: 'Storing and accessing sequential data.'
         },
         {
             name: 'Stack',
-            path: '/dsa/stack',
+            path: '/basic_dsa/stack',
             description: 'A LIFO (Last In First Out) data structure.',
             useCase: 'Function calls, expression evaluation.'
         },
         {
             name: 'Queue',
-            path: '/dsa/queue',
+            path: '/basic_dsa/queue',
             description: 'A FIFO (First In First Out) data structure.',
             useCase: 'Task scheduling, resource management.'
         },
         {
             name: 'Binary Tree',
-            path: '/dsa/binary_tree',
+            path: '/basic_dsa/binary_tree',
             description: 'A tree data structure where each node has at most two children.',
             useCase: 'Searching, sorting, and indexing data.'
         },
         {
             name: 'Hash Table',
-            path: '/dsa/hash_table',
+            path: '/basic_dsa/hash_table',
             description: 'A data structure that implements an associative array abstract data type.',
             useCase: 'Implementing dictionaries and caching.'
         },
         {
             name: 'Graph',
-            path: '/dsa/graph',
+            path: '/basic_dsa/graph',
             description: 'A data structure consisting of nodes (vertices) connected by edges.',
             useCase: 'Modeling networks, social connections.'
         },
@@ -56,19 +61,19 @@ export default function DSAContentPage() {
     const algorithms = [
         {
             name: 'Binary Search',
-            path: '/dsa/binary_search',
+            path: '/basic_dsa/binary_search',
             description: 'Efficient algorithm for finding an item from a sorted list.',
             useCase: 'Searching in sorted arrays.'
         },
         {
             name: 'Depth-First Search (DFS)',
-            path: '/dsa/dfs',
+            path: '/basic_dsa/dfs',
             description: 'Traversal algorithm for graph or tree data structures.',
             useCase: 'Pathfinding, topological sorting.'
         },
         {
             name: 'Breadth-First Search (BFS)',
-            path: '/dsa/bfs',
+            path: '/basic_dsa/bfs',
             description: 'Traversal algorithm that explores neighbor nodes first.',
             useCase: 'Shortest path finding, network traversal.'
         },

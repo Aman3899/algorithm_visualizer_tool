@@ -2,25 +2,15 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiPlus, FiTrash, FiArrowRight } from 'react-icons/fi';
+import { FiPlus, FiTrash, FiInfo, FiCode, FiClock, FiCpu, FiLayers, FiTarget, FiCopy, FiShare2 } from 'react-icons/fi';
 import Navbar from '@/components/Navbar';
-import { FaEdit, FaRedo, FaArrowLeft, FaInfoCircle } from 'react-icons/fa';
+import { FaEdit, FaRedo, FaRegLightbulb, FaRegCheckCircle } from 'react-icons/fa';
 import { BsGraphUp } from 'react-icons/bs';
 import { IoMdSchool } from 'react-icons/io';
-import { FaRegLightbulb, FaRegCheckCircle } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import { FiCopy, FiInfo, FiShare2, FiCode, FiClock, FiCpu, FiLayers, FiTarget } from 'react-icons/fi';
 
-
-class Node {
-    constructor(value) {
-        this.value = value;
-        this.next = null;
-    }
-}
-
-const LinkedListVisualizer = () => {
-    const [head, setHead] = useState(null);
+const StackVisualizer = () => {
+    const [stack, setStack] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [operation, setOperation] = useState('');
     const [showInputModal, setShowInputModal] = useState(false);
@@ -29,35 +19,25 @@ const LinkedListVisualizer = () => {
     const [activeTab, setActiveTab] = useState('details');
     const [isHovered, setIsHovered] = useState(false);
 
+    // Stack pseudocode
+    const pseudocode = `Stack:
+    push(value):
+        add 'value' to the top of the stack
 
-    // Linked List pseudocode
-    const pseudocode = `LinkedList:
-    Node {
-        value
-        next : Node
-    }
-
-    insertAtEnd(value):
-        newNode = Node(value)
-        if list is empty:
-            head = newNode
+    pop():
+        if stack is not empty:
+            remove and return the top element
         else:
-            current = head
-            while current.next is not null:
-                current = current.next
-            current.next = newNode
+            return null (or throw an exception)
 
-    deleteNode(value):
-        if list is empty:
-            return // Nothing to delete
-        if head.value equals value:
-            head = head.next
+    peek():
+        if stack is not empty:
+            return the top element without removing it
         else:
-            current = head
-            while current.next is not null and current.next.value != value:
-                current = current.next
-            if current.next is not null:
-                current.next = current.next.next`;
+            return null
+
+    isEmpty():
+        return true if stack is empty, false otherwise`;
 
     // Function to copy pseudocode to clipboard
     const handleCopy = () => {
@@ -92,22 +72,16 @@ const LinkedListVisualizer = () => {
         ), { duration: 2000 });
     };
 
-    // Animation variants with enhanced effects
-    const nodeVariants = {
-        initial: { scale: 0, opacity: 0, y: 50, rotate: -15 },
+    // Animation variants for stack items
+    const stackVariants = {
+        initial: { scale: 0.8, opacity: 0, y: 100 },
         animate: {
             scale: 1,
             opacity: 1,
             y: 0,
-            rotate: 0,
-            transition: { duration: 0.6, type: 'spring', stiffness: 200, damping: 15 },
+            transition: { duration: 0.5, type: 'spring', stiffness: 150, damping: 12 },
         },
-        exit: { scale: 0, opacity: 0, y: -50, rotate: 15, transition: { duration: 0.4 } },
-    };
-
-    const arrowVariants = {
-        initial: { opacity: 0, scale: 0.8, x: -10 },
-        animate: { opacity: 1, scale: 1, x: 0, transition: { duration: 0.5, delay: 0.3 } },
+        exit: { scale: 0.8, opacity: 0, y: -100, transition: { duration: 0.4 } },
     };
 
     // Tabs data
@@ -120,19 +94,18 @@ const LinkedListVisualizer = () => {
 
     // Application examples
     const applications = [
-        { title: 'Dynamic Memory Allocation', description: 'Efficiently manages data structures where size is not known beforehand.', icon: <FiTarget size={20} className="text-pink-400" /> },
-        { title: 'Implementing Stacks and Queues', description: 'Forms the basis for more complex data structures with specific access patterns.', icon: <BsGraphUp size={20} className="text-blue-400" /> },
-        { title: 'Representing Polynomials', description: 'Used to store and manipulate polynomial expressions in computer algebra systems.', icon: <FiLayers size={20} className="text-purple-400" /> },
-        { title: 'Image List', description: 'Each element in the linked list points to an image file.', icon: <FiCpu size={20} className="text-green-400" /> },
+        { title: 'Expression Evaluation', description: 'Evaluating arithmetic expressions using stacks.', icon: <FiTarget size={20} className="text-pink-400" /> },
+        { title: 'Function Call Management', description: 'Managing function calls and local variables in programming languages.', icon: <BsGraphUp size={20} className="text-blue-400" /> },
+        { title: 'Undo/Redo Mechanism', description: 'Implementing undo/redo functionality in applications.', icon: <FiLayers size={20} className="text-purple-400" /> },
+        { title: 'Backtracking Algorithms', description: 'Supporting backtracking in algorithms like maze solving.', icon: <FiCpu size={20} className="text-green-400" /> },
     ];
 
     // Learning resources
     const resources = [
-        { title: 'Interactive Linked List Visualization', url: 'https://www.cs.usfca.edu/~galles/visualization/LinkedLists.html', description: 'See Linked List in action with step-by-step visualization' },
-        { title: 'Linked List Interview Questions', url: 'https://www.geeksforgeeks.org/must-do-coding-questions-for-companies-like-amazon-microsoft-adobe-etc/', description: 'Practice with common interview problems' },
-        { title: 'Linked List vs Other Data Structures', url: 'https://www.geeksforgeeks.org/linked-list-vs-array/', description: 'Compare Linked List with Arrays, etc.' },
+        { title: 'Interactive Stack Visualization', url: 'https://www.cs.usfca.edu/~galles/visualization/Stack.html', description: 'See Stack in action with step-by-step visualization' },
+        { title: 'Stack Interview Questions', url: 'https://www.geeksforgeeks.org/stack-data-structure/', description: 'Practice with common interview problems' },
+        { title: 'Stack vs Queue', url: 'https://www.geeksforgeeks.org/stack-vs-queue/', description: 'Compare Stack with Queue, etc.' },
     ];
-
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -150,108 +123,46 @@ const LinkedListVisualizer = () => {
         visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
     };
 
-    // Insert node at the end
-    const insertAtEnd = () => {
+
+    // Push to stack
+    const pushToStack = () => {
         if (!inputValue) return;
-        const value = parseInt(inputValue);
-        const newNode = new Node(value);
-        setOperation(`Inserting ${value} at end`);
-
-        if (!head) {
-            setHead(newNode);
-        } else {
-            let current = head;
-            while (current.next) current = current.next;
-            current.next = newNode;
-        }
-        setHead({ ...head });
+        setOperation(`Pushing ${inputValue} to stack`);
+        setStack([inputValue, ...stack]);
         setInputValue('');
     };
 
-    // Insert node at the head
-    const insertAtHead = () => {
-        if (!inputValue) return;
-        const value = parseInt(inputValue);
-        const newNode = new Node(value);
-        setOperation(`Inserting ${value} at head`);
+    // Pop from stack
+    const popFromStack = () => {
+        if (stack.length === 0) return;
+        const poppedValue = stack[0];
+        setOperation(`Popped ${poppedValue} from stack`);
+        setStack(stack.slice(1));
+    };
 
-        newNode.next = head;
-        setHead(newNode);
+    // Clear the stack
+    const clearStack = () => {
+        setStack([]);
+        setOperation('Stack cleared');
         setInputValue('');
     };
 
-    // Delete node by value
-    const deleteNode = () => {
-        if (!inputValue || !head) return;
-        const value = parseInt(inputValue);
-        setOperation(`Deleting ${value}`);
-
-        if (head.value === value) {
-            setHead(head.next);
-        } else {
-            let current = head;
-            while (current.next && current.next.value !== value) {
-                current = current.next;
-            }
-            if (current.next) current.next = current.next.next;
-            setHead({ ...head });
-        }
-        setInputValue('');
-    };
-
-    // Clear the entire list
-    const clearList = () => {
-        setHead(null);
-        setOperation('List cleared');
-        setInputValue('');
-    };
-
-    // Render linked list as array for visualization
-    const renderList = () => {
-        const nodes = [];
-        let current = head;
-        while (current) {
-            nodes.push(current.value);
-            current = current.next;
-        }
-        return nodes;
-    };
-
-    // Handle custom array input
-    const handleCustomArray = () => {
+    // Handle custom stack input
+    const handleCustomStack = () => {
         setInputError('');
         try {
             const inputValues = inputValue.split(/[,;\s]+/).filter(item => item.trim() !== '');
-            const parsedArray = inputValues.map(item => {
-                const num = parseInt(item.trim());
-                if (isNaN(num)) throw new Error(`"${item}" is not a valid number`);
-                return num;
-            });
-
-            if (parsedArray.length === 0) {
-                setInputError('Please enter at least one number');
+            if (inputValues.length === 0) {
+                setInputError('Please enter at least one value.');
                 return;
             }
 
-            let newHead = null;
-            let current = null;
-            parsedArray.forEach(value => {
-                const newNode = new Node(value);
-                if (!newHead) {
-                    newHead = newNode;
-                    current = newHead;
-                } else {
-                    current.next = newNode;
-                    current = newNode;
-                }
-            });
-
-            setHead(newHead);
-            setOperation(`Loaded custom list: ${parsedArray.join(', ')}`);
+            setStack([...inputValues].reverse()); // Maintain LIFO order
+            setOperation(`Loaded custom stack: ${inputValues.join(', ')}`);
             setShowInputModal(false);
             setInputValue('');
         } catch (error) {
-            setInputError(error.message || 'Invalid input. Use numbers separated by commas.');
+            setInputError(error.message || 'Invalid input. Use comma-separated values.');
         }
     };
 
@@ -270,8 +181,7 @@ const LinkedListVisualizer = () => {
     }, [showInputModal]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 text-white px-6 pt-20 pb-12 flex flex-col items-center">
-
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 text-white px-6 pt-20 pb-12 flex flex-col items-center">
             <Navbar />
 
             {/* Header */}
@@ -279,9 +189,9 @@ const LinkedListVisualizer = () => {
                 initial={{ opacity: 0, y: -30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className="text-5xl md:text-6xl font-extrabold mt-8 mb-12 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 tracking-tight drop-shadow-lg"
+                className="text-5xl md:text-6xl font-extrabold mt-8 mb-12 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-400 to-indigo-400 tracking-tight drop-shadow-lg"
             >
-                Linked List Visualizer
+                Stack Visualizer
             </motion.h1>
 
             {/* Input and Controls */}
@@ -289,44 +199,36 @@ const LinkedListVisualizer = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="mb-12 w-full max-w-2xl bg-gray-800/90 p-8 rounded-3xl border border-purple-500/30 shadow-2xl backdrop-blur-lg"
+                className="mb-12 w-full max-w-2xl bg-gray-800/90 p-8 rounded-3xl border border-blue-500/30 shadow-2xl backdrop-blur-lg"
             >
                 <input
-                    type="number"
+                    type="text"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    className="w-full p-4 rounded-xl bg-gray-700/70 border border-purple-500/50 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300 shadow-inner text-lg"
-                    placeholder="Enter a number"
+                    className="w-full p-4 rounded-xl bg-gray-700/70 border border-blue-500/50 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 shadow-inner text-lg"
+                    placeholder="Enter a value (number or character)"
                 />
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
                     <motion.button
                         whileHover={{ scale: 1.05, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.3)" }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={insertAtHead}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-700 to-indigo-700 rounded-xl text-sm font-semibold text-white shadow-lg hover:brightness-110 transition-all duration-300"
+                        onClick={pushToStack}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-700 to-cyan-700 rounded-xl text-sm font-semibold text-white shadow-lg hover:brightness-110 transition-all duration-300"
                     >
-                        <FaArrowLeft /> Head
+                        <FiPlus /> Push
                     </motion.button>
                     <motion.button
                         whileHover={{ scale: 1.05, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.3)" }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={insertAtEnd}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-700 to-pink-700 rounded-xl text-sm font-semibold text-white shadow-lg hover:brightness-110 transition-all duration-300"
+                        onClick={popFromStack}
+                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-700 to-orange-700 rounded-xl text-sm font-semibold text-white shadow-lg hover:brightness-110 transition-all duration-300"
                     >
-                        <FiPlus /> End
+                        <FiTrash /> Pop
                     </motion.button>
                     <motion.button
                         whileHover={{ scale: 1.05, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.3)" }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={deleteNode}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-700 to-pink-700 rounded-xl text-sm font-semibold text-white shadow-lg hover:brightness-110 transition-all duration-300"
-                    >
-                        <FiTrash /> Delete
-                    </motion.button>
-                    <motion.button
-                        whileHover={{ scale: 1.05, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.3)" }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={clearList}
+                        onClick={clearStack}
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-700 to-gray-600 rounded-xl text-sm font-semibold text-white shadow-lg hover:brightness-110 transition-all duration-300"
                     >
                         <FaRedo /> Clear
@@ -335,9 +237,9 @@ const LinkedListVisualizer = () => {
                         whileHover={{ scale: 1.05, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.3)" }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setShowInputModal(true)}
-                        className="col-span-2 sm:col-span-4 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-yellow-700 to-orange-700 rounded-xl text-sm font-semibold text-white shadow-lg hover:brightness-110 transition-all duration-300"
+                        className="col-span-2 sm:col-span-3 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-700 to-green-700 rounded-xl text-sm font-semibold text-white shadow-lg hover:brightness-110 transition-all duration-300"
                     >
-                        <FaEdit /> Custom List
+                        <FaEdit /> Custom Stack
                     </motion.button>
                 </div>
             </motion.div>
@@ -347,33 +249,24 @@ const LinkedListVisualizer = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="w-full max-w-6xl bg-gray-800/80 p-10 rounded-3xl border border-purple-500/30 shadow-2xl backdrop-blur-lg"
+                className="w-full max-w-3xl bg-gray-800/80 p-10 rounded-3xl border border-blue-500/30 shadow-2xl backdrop-blur-lg"
             >
-                <h2 className="text-3xl font-semibold mb-8 text-purple-300 drop-shadow-md">Linked List</h2>
-                <div className="flex flex-wrap gap-10 items-center justify-center">
+                <h2 className="text-3xl font-semibold mb-8 text-blue-300 drop-shadow-md">Stack (Top to Bottom)</h2>
+                <div className="flex flex-col items-center gap-4">
                     <AnimatePresence>
-                        {renderList().length > 0 ? (
-                            renderList().map((value, index) => (
+                        {stack.length > 0 ? (
+                            stack.map((value, index) => (
                                 <motion.div
-                                    key={index}
-                                    variants={nodeVariants}
+                                    key={`${value}-${index}`} // Unique key
+                                    variants={stackVariants}
                                     initial="initial"
                                     animate="animate"
                                     exit="exit"
-                                    className="flex items-center gap-6"
+                                    className="w-full max-w-md h-16 flex items-center justify-between px-6 bg-gradient-to-r from-blue-700 to-indigo-700 rounded-lg text-white font-bold text-xl shadow-lg shadow-blue-500/40 border-2 border-blue-500/60 hover:shadow-xl transition-all duration-300"
                                 >
-                                    <div className="w-24 h-24 flex items-center justify-center bg-gradient-to-br from-purple-700 to-indigo-700 rounded-full text-white font-bold text-xl shadow-lg shadow-purple-500/40 border-2 border-purple-500/60 hover:shadow-xl transition-all duration-300">
-                                        {value}
-                                    </div>
-                                    {index < renderList().length - 1 && (
-                                        <motion.div
-                                            variants={arrowVariants}
-                                            initial="initial"
-                                            animate="animate"
-                                            className="text-purple-400"
-                                        >
-                                            <FiArrowRight size={36} />
-                                        </motion.div>
+                                    <span>{value}</span>
+                                    {index === 0 && (
+                                        <span className="text-sm font-medium bg-blue-500/50 px-3 py-1 rounded-full">Top</span>
                                     )}
                                 </motion.div>
                             ))
@@ -383,7 +276,7 @@ const LinkedListVisualizer = () => {
                                 animate={{ opacity: 1 }}
                                 className="text-gray-400 text-xl font-medium"
                             >
-                                List is empty. Add a node to visualize!
+                                Stack is empty. Push elements to visualize!
                             </motion.p>
                         )}
                     </AnimatePresence>
@@ -395,60 +288,11 @@ const LinkedListVisualizer = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
-                className="mt-12 w-full max-w-6xl bg-gray-800/80 p-8 rounded-3xl border border-pink-500/30 shadow-2xl backdrop-blur-lg"
+                className="mt-12 w-full max-w-3xl bg-gray-800/80 p-8 rounded-3xl border border-cyan-500/30 shadow-2xl backdrop-blur-lg"
             >
-                <h2 className="text-3xl font-semibold mb-4 text-pink-300 drop-shadow-md">Operation Log</h2>
+                <h2 className="text-3xl font-semibold mb-4 text-cyan-300 drop-shadow-md">Operation Log</h2>
                 <p className="text-gray-200 text-lg font-medium">{operation || 'No operations yet.'}</p>
             </motion.div>
-
-            {/* Custom Input Modal */}
-            <AnimatePresence>
-                {showInputModal && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
-                    >
-                        <motion.div
-                            ref={modalRef}
-                            initial={{ scale: 0.85, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.85, y: 20 }}
-                            transition={{ duration: 0.4, type: 'spring', stiffness: 150 }}
-                            className="bg-gray-800 p-8 rounded-3xl w-full max-w-md border border-indigo-500/40 shadow-2xl backdrop-blur-lg"
-                        >
-                            <h3 className="text-2xl font-semibold text-indigo-300 mb-6 drop-shadow-md">Load Custom Linked List</h3>
-                            <textarea
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                placeholder="Enter numbers separated by commas (e.g., 5, 10, 15)"
-                                className="w-full p-4 bg-gray-700/70 rounded-xl border border-indigo-500/50 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 shadow-inner text-lg"
-                                rows="5"
-                            />
-                            {inputError && <p className="text-red-400 text-sm mt-3">{inputError}</p>}
-                            <div className="flex justify-end gap-4 mt-6">
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => setShowInputModal(false)}
-                                    className="px-6 py-3 bg-gray-600 rounded-xl text-white font-semibold hover:bg-gray-700 transition-all duration-300 shadow-md"
-                                >
-                                    Cancel
-                                </motion.button>
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={handleCustomArray}
-                                    className="px-6 py-3 bg-gradient-to-r from-indigo-700 to-purple-700 rounded-xl text-white font-semibold hover:brightness-110 transition-all duration-300 shadow-md"
-                                >
-                                    Load
-                                </motion.button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             {/* Explanation Section */}
             <motion.div
@@ -457,7 +301,7 @@ const LinkedListVisualizer = () => {
                 transition={{ duration: 0.6, delay: 0.6 }}
                 className="mt-12 w-full max-w-6xl bg-gray-800/80 p-8 rounded-3xl border border-green-500/30 shadow-2xl backdrop-blur-lg"
             >
-                {/* Header section with lightning icon */}
+                {/* Header section */}
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
@@ -469,14 +313,14 @@ const LinkedListVisualizer = () => {
                         transition={{ type: "spring", stiffness: 500 }}
                         className="mb-4 p-4 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-600/30"
                     >
-                        <FaInfoCircle className="text-white text-3xl" />
+                        <FiInfo className="text-white text-3xl" />
                     </motion.div>
 
                     <motion.h2
                         variants={itemVariants}
-                        className="text-4xl md:text-5xl font-extrabold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-indigo-400 to-pink-400 tracking-tight"
+                        className="text-4xl md:text-5xl font-extrabold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-400 to-indigo-400 tracking-tight"
                     >
-                        Linked List Explained
+                        Stack Explained
                     </motion.h2>
 
                     <motion.div
@@ -486,7 +330,7 @@ const LinkedListVisualizer = () => {
                         onMouseLeave={() => setIsHovered(false)}
                     >
                         <p className="text-gray-200 text-lg md:text-xl leading-relaxed text-center max-w-3xl mx-auto font-light">
-                            A linked list is a linear collection of data elements, called nodes, each pointing to the next node in the sequence, creating a chain.
+                            A stack is a fundamental data structure based on the principle of Last-In-First-Out (LIFO). Elements are added (pushed) and removed (popped) from the top.
                         </p>
 
                         <AnimatePresence>
@@ -498,7 +342,7 @@ const LinkedListVisualizer = () => {
                                     className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-indigo-900/90 text-purple-200 rounded-lg shadow-lg text-sm max-w-xs text-center"
                                 >
                                     <FaRegLightbulb className="inline-block mr-2 text-yellow-300" size={16} />
-                                    Linked lists offer dynamic sizing and efficient insertion/deletion operations
+                                    Stacks are simple and efficient for managing data in a LIFO order
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -544,26 +388,26 @@ const LinkedListVisualizer = () => {
                                 {/* Left section */}
                                 <motion.div
                                     variants={itemVariants}
-                                    className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-6 rounded-2xl shadow-xl border border-purple-500/30 backdrop-blur-sm"
+                                    className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-6 rounded-2xl shadow-xl border border-blue-500/30 backdrop-blur-sm"
                                 >
-                                    <h3 className="text-2xl font-semibold mb-6 text-purple-300 tracking-wide flex items-center">
-                                        <FiInfo className="mr-3 text-purple-400" size={20} />
+                                    <h3 className="text-2xl font-semibold mb-6 text-blue-300 tracking-wide flex items-center">
+                                        <FiInfo className="mr-3 text-blue-400" size={20} />
                                         Algorithm Characteristics
                                     </h3>
                                     <ul className="space-y-5">
                                         {[
-                                            { icon: <FiClock size={20} />, label: 'Time Complexity (Insertion)', value: 'O(1)', color: 'text-purple-400' },
-                                            { icon: <FiClock size={20} />, label: 'Time Complexity (Deletion)', value: 'O(n)', color: 'text-purple-400' },
-                                            { icon: <FiLayers size={20} />, label: 'Space Complexity', value: 'O(n)', color: 'text-indigo-400' },
-                                            { icon: <FiCpu size={20} />, label: 'Dynamic Size', value: 'Yes', color: 'text-blue-400' },
-                                            { icon: <FiTarget size={20} />, label: 'Non-Contiguous', value: 'Yes', color: 'text-green-400' },
+                                            { icon: <FiClock size={20} />, label: 'Time Complexity (Push)', value: 'O(1)', color: 'text-blue-400' },
+                                            { icon: <FiClock size={20} />, label: 'Time Complexity (Pop)', value: 'O(1)', color: 'text-blue-400' },
+                                            { icon: <FiLayers size={20} />, label: 'Space Complexity', value: 'O(n)', color: 'text-cyan-400' },
+                                            { icon: <FiCpu size={20} />, label: 'LIFO', value: 'Yes', color: 'text-indigo-400' },
+                                            { icon: <FiTarget size={20} />, label: 'Implementation', value: 'Arrays or Linked Lists', color: 'text-green-400' },
                                         ].map((item, idx) => (
                                             <motion.li
                                                 key={idx}
                                                 variants={itemVariants}
                                                 className="flex items-center gap-4 p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 transition duration-300"
                                             >
-                                                <div className="p-2 rounded-lg bg-gray-700/70 text-purple-400">
+                                                <div className="p-2 rounded-lg bg-gray-700/70 text-blue-400">
                                                     {item.icon}
                                                 </div>
                                                 <div>
@@ -578,21 +422,21 @@ const LinkedListVisualizer = () => {
                                 {/* Right section */}
                                 <motion.div
                                     variants={itemVariants}
-                                    className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-6 rounded-2xl shadow-xl border border-purple-500/30 backdrop-blur-sm"
+                                    className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-6 rounded-2xl shadow-xl border border-blue-500/30 backdrop-blur-sm"
                                 >
-                                    <h3 className="text-2xl font-semibold mb-6 text-purple-300 tracking-wide flex items-center">
-                                        <BsGraphUp className="mr-3 text-purple-400" size={20} />
+                                    <h3 className="text-2xl font-semibold mb-6 text-blue-300 tracking-wide flex items-center">
+                                        <BsGraphUp className="mr-3 text-blue-400" size={20} />
                                         Key Properties
                                     </h3>
                                     <ul className="space-y-4">
                                         {[
-                                            "Nodes contain a value and a pointer to the next node.",
-                                            "Dynamic size allows for flexible memory usage.",
-                                            "Insertion and deletion are efficient (O(1) if node is known).",
-                                            "Sequential access only; random access not supported.",
+                                            "Follows LIFO (Last-In-First-Out) principle.",
+                                            "Insertion (push) and deletion (pop) occur at the top.",
+                                            "Simple and efficient for managing data in reverse order of arrival.",
+                                            "Can be implemented using arrays or linked lists.",
                                         ].map((item, idx) => (
                                             <motion.li key={idx} variants={itemVariants} className="flex items-start gap-3">
-                                                <div className="mt-1 min-w-[8px] h-2 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"></div>
+                                                <div className="mt-1 min-w-[8px] h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></div>
                                                 <p className="text-gray-200">{item}</p>
                                             </motion.li>
                                         ))}
@@ -603,7 +447,7 @@ const LinkedListVisualizer = () => {
                                     >
                                         <p className="text-indigo-300 font-medium flex items-center">
                                             <FaRegLightbulb className="mr-2 text-yellow-300" size={16} />
-                                            Linked Lists are used when the number of elements is unknown or changes frequently
+                                            Stacks are essential for managing execution flow in programs and simplifying data handling.
                                         </p>
                                     </motion.div>
                                 </motion.div>
@@ -646,7 +490,7 @@ const LinkedListVisualizer = () => {
                         {/* Applications Tab */}
                         {activeTab === 'applications' && (
                             <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-                                <h3 className="text-2xl font-semibold mb-4 text-purple-300">Common Applications</h3>
+                                <h3 className="text-2xl font-semibold mb-4 text-blue-300">Common Applications</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {applications.map((app, idx) => (
                                         <motion.div
@@ -687,14 +531,64 @@ const LinkedListVisualizer = () => {
                                             </div>
                                         </motion.div>
                                     ))}
-                                </motion.div>
+                                    </motion.div>
                             </motion.div>
                         )}
                     </motion.div>
                 </AnimatePresence>
             </motion.div>
+
+            {/* Custom Input Modal */}
+            <AnimatePresence>
+                {showInputModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+                    >
+                        <motion.div
+                            ref={modalRef}
+                            initial={{ scale: 0.85, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.85, y: 20 }}
+                            transition={{ duration: 0.4, type: 'spring', stiffness: 150 }}
+                            className="bg-gray-800 p-8 rounded-3xl w-full max-w-md border border-teal-500/40 shadow-2xl backdrop-blur-lg"
+                        >
+                            <h3 className="text-2xl font-semibold text-teal-300 mb-6 drop-shadow-md">Load Custom Stack</h3>
+                            <textarea
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                placeholder="Enter values separated by commas (e.g., 5, 10, A, b)"
+                                className="w-full p-4 bg-gray-700/70 rounded-xl border border-teal-500/50 text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-300 shadow-inner text-lg"
+                                rows="5"
+                            />
+                            <p className="text-gray-400 text-sm mt-2">Note: Last value will be at the bottom</p>
+                            {inputError && <p className="text-red-400 text-sm mt-3">{inputError}</p>}
+                            <div className="flex justify-end gap-4 mt-6">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => setShowInputModal(false)}
+                                    className="px-6 py-3 bg-gray-600 rounded-xl text-white font-semibold hover:bg-gray-700 transition-all duration-300 shadow-md"
+                                >
+                                    Cancel
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleCustomStack}
+                                    className="px-6 py-3 bg-gradient-to-r from-teal-700 to-blue-700 rounded-xl text-white font-semibold hover:brightness-110 transition-all duration-300 shadow-md"
+                                >
+                                    Load
+                                </motion.button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
 
-export default LinkedListVisualizer; // Ensure default export for Next.js App Router
+export default StackVisualizer;
