@@ -6,6 +6,7 @@ import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 
+
 const BubbleSortVisualizer = () => {
     const [array, setArray] = useState([]);
     const [arraySize, setArraySize] = useState(15);
@@ -207,7 +208,7 @@ const BubbleSortVisualizer = () => {
     return (
         <>
             <Navbar />
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-black text-white flex items-center justify-center px-4 py-20 sm:p-8 font-sans">
+            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-black text-white flex items-center justify-center px-4 py-24 max-sm:py-20 font-sans">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
