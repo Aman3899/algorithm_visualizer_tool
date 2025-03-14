@@ -8,25 +8,28 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 
-
 const HomePage = () => {
     const [activeAlgorithm, setActiveAlgorithm] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
 
     const { scrollYProgress } = useScroll();
     const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-    const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
+    const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.9]);
 
     const algorithms = [
-        "Bubble Sort", "Quick Sort", "Merge Sort", "Binary Search", "Depth-First Search", "Breadth-First Search"
+        "Bubble Sort",
+        "Quick Sort",
+        "Merge Sort",
+        "Binary Search",
+        "Depth-First Search",
+        "Breadth-First Search",
     ];
 
     useEffect(() => {
         const timer = setTimeout(() => setIsVisible(true), 500);
-
         const interval = setInterval(() => {
             setActiveAlgorithm((prev) => (prev + 1) % algorithms.length);
-        }, 2000);
+        }, 2500);
 
         return () => {
             clearTimeout(timer);
@@ -36,8 +39,8 @@ const HomePage = () => {
 
     const cardVariants = {
         hidden: { opacity: 0, y: 50 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-        hover: { scale: 1.05, boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)' },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+        hover: { scale: 1.05, boxShadow: '0 25px 50px rgba(0, 0, 0, 0.4)', transition: { duration: 0.3 } },
         tap: { scale: 0.95 },
     };
 
@@ -48,49 +51,41 @@ const HomePage = () => {
 
     const staggeredVariants = {
         hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.2,
-            },
-        },
+        visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
     };
 
     const featureVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: { duration: 0.5 }
-        },
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
     };
 
     return (
         <>
             <Navbar />
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-black text-white flex flex-col items-center justify-center px-4 py-16 font-sans">
-                {/* Hero Section with Particle Background */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-transparent to-transparent"></div>
-                    {Array.from({ length: 20 }).map((_, i) => (
+            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-black text-white flex flex-col items-center justify-start px-4 py-16 font-sans overflow-hidden">
+                {/* Hero Section with Enhanced Particle Background */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/40 via-transparent to-transparent"></div>
+                    {Array.from({ length: 30 }).map((_, i) => (
                         <motion.div
                             key={i}
-                            className="absolute rounded-full bg-indigo-500/20"
+                            className="absolute rounded-full bg-gradient-to-br from-indigo-500/30 to-purple-500/30"
                             style={{
-                                width: Math.random() * 10 + 5,
-                                height: Math.random() * 10 + 5,
+                                width: Math.random() * 12 + 6,
+                                height: Math.random() * 12 + 6,
                                 left: `${Math.random() * 100}%`,
                                 top: `${Math.random() * 100}%`,
                             }}
                             animate={{
-                                y: [0, Math.random() * -100 - 50],
-                                x: [0, Math.random() * 40 - 20],
-                                opacity: [0.1, 0.4, 0],
+                                y: [0, Math.random() * -120 - 60],
+                                x: [0, Math.random() * 50 - 25],
+                                opacity: [0, 0.5, 0],
                             }}
                             transition={{
-                                duration: Math.random() * 10 + 10,
+                                duration: Math.random() * 12 + 8,
                                 repeat: Infinity,
-                                repeatType: "loop",
+                                repeatType: 'loop',
+                                ease: 'easeInOut',
                             }}
                         />
                     ))}
@@ -101,67 +96,77 @@ const HomePage = () => {
                     animate="visible"
                     variants={textVariants}
                     style={{ opacity, scale }}
-                    className="text-center max-w-4xl mb-16 pt-20"
+                    className="text-center max-w-5xl mb-20 pt-24 relative z-10"
                 >
-                    <div className="relative mb-8">
-                        <h1 className="text-5xl md:text-7xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
-                            Explore Algorithm Visualizers
-                        </h1>
+                    <motion.h1
+                        className="text-5xl md:text-7xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                    >
+                        Discover Algorithm Visualizations
+                    </motion.h1>
+
+                    <motion.div
+                        className="relative h-12 overflow-hidden mt-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.8 }}
+                    >
                         <motion.div
-                            className="relative h-12 overflow-hidden mt-4"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.8 }}
+                            className="absolute w-full h-full flex flex-col items-center justify-center"
+                            animate={{ y: `-${activeAlgorithm * 100}%` }}
+                            transition={{ type: 'spring', stiffness: 120, damping: 20 }}
                         >
-                            <motion.div
-                                className="absolute w-full h-full flex flex-col items-center justify-center"
-                                animate={{ y: `-${activeAlgorithm * 100}%` }}
-                                transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                            >
-                                {algorithms.map((algo, index) => (
-                                    <div key={index} className="h-12 flex items-center justify-center">
-                                        <span className="text-2xl font-mono text-indigo-300">{algo}</span>
-                                    </div>
-                                ))}
-                            </motion.div>
+                            {algorithms.map((algo, index) => (
+                                <div key={index} className="h-12 flex items-center justify-center">
+                                    <span className="text-2xl md:text-3xl font-mono text-indigo-300 drop-shadow-md">
+                                        {algo}
+                                    </span>
+                                </div>
+                            ))}
                         </motion.div>
-                    </div>
+                    </motion.div>
 
-                    <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
-                        Dive into the world of algorithms with immersive interactive visualizations. Learn, experiment, and understand
-                        the inner workings of computing&apos;s most fundamental procedures in a sleek, modern interface.
-                    </p>
+                    <motion.p
+                        className="text-lg md:text-xl text-gray-300 mb-10 leading-relaxed max-w-3xl mx-auto"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1 }}
+                    >
+                        Embark on a journey through the realm of algorithms with stunning interactive visualizations. Master the art of computation with real-time animations and intuitive controls.
+                    </motion.p>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                         <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
                             <Link
                                 href="#categories"
-                                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-lg font-semibold transition-colors duration-300 shadow-lg shadow-indigo-900/50"
+                                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-full text-lg font-semibold transition-all duration-300 shadow-xl shadow-indigo-900/40"
                             >
-                                Get Started <MdOutlineKeyboardArrowRight className="ml-2 text-xl" />
+                                Start Exploring <MdOutlineKeyboardArrowRight className="ml-2 text-2xl" />
                             </Link>
                         </motion.div>
 
                         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                             <Link
                                 href="#features"
-                                className="inline-flex items-center px-6 py-3 bg-transparent border border-indigo-500 hover:border-indigo-400 rounded-full text-lg font-semibold transition-all duration-300"
+                                className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-purple-500 hover:border-purple-400 rounded-full text-lg font-semibold transition-all duration-300 hover:bg-purple-500/10"
                             >
-                                Learn More <RiLightbulbFlashLine className="ml-2" />
+                                Learn More <RiLightbulbFlashLine className="ml-2 text-xl" />
                             </Link>
                         </motion.div>
                     </div>
                 </motion.section>
 
                 {/* Features Section */}
-                <section id="features" className="w-full max-w-6xl mb-20 px-4">
+                <section id="features" className="w-full max-w-6xl mb-24 px-4 relative z-10">
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl md:text-4xl font-bold text-center text-indigo-300 mb-12"
+                        className="text-3xl md:text-5xl font-bold text-center text-indigo-300 mb-16 drop-shadow-lg"
                     >
-                        Why Visualize Algorithms?
+                        Why Choose AlgoViz?
                     </motion.h2>
 
                     <motion.div
@@ -169,67 +174,73 @@ const HomePage = () => {
                         initial="hidden"
                         whileInView="visible"
                         viewport={{ once: true }}
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                     >
                         {[
                             {
-                                icon: <MdSpeed className="text-4xl text-indigo-400" />,
-                                title: "Intuitive Learning",
-                                description: "Visualizations make complex algorithms digestible and easy to understand for all skill levels."
+                                icon: <MdSpeed className="text-5xl text-indigo-400" />,
+                                title: 'Intuitive Learning',
+                                description:
+                                    'Break down complex algorithms into digestible visuals, perfect for beginners and experts alike.',
                             },
                             {
-                                icon: <RiRocketLine className="text-4xl text-purple-400" />,
-                                title: "Accelerated Mastery",
-                                description: "Grasp concepts faster by seeing how algorithms transform data in real-time animations."
+                                icon: <RiRocketLine className="text-5xl text-purple-400" />,
+                                title: 'Accelerated Mastery',
+                                description:
+                                    'Speed up your learning curve with dynamic animations that reveal algorithmic processes in action.',
                             },
                             {
-                                icon: <MdEmojiObjects className="text-4xl text-pink-400" />,
-                                title: "Deeper Understanding",
-                                description: "Develop intuition about algorithmic efficiency and behavior through interactive explorations."
+                                icon: <MdEmojiObjects className="text-5xl text-pink-400" />,
+                                title: 'Deeper Insights',
+                                description:
+                                    'Build a profound understanding of efficiency and logic through interactive experimentation.',
                             },
                             {
-                                icon: <MdTimeline className="text-4xl text-indigo-400" />,
-                                title: "Step-by-Step Breakdown",
-                                description: "Follow each algorithm's execution path with clear, animated step-by-step visualization."
+                                icon: <MdTimeline className="text-5xl text-indigo-400" />,
+                                title: 'Step-by-Step Clarity',
+                                description:
+                                    'Trace every move of an algorithm with detailed, animated breakdowns of each operation.',
                             },
                             {
-                                icon: <FaCodeBranch className="text-4xl text-purple-400" />,
-                                title: "Comparative Analysis",
-                                description: "Compare different algorithms side-by-side to understand their strengths and weaknesses."
+                                icon: <FaCodeBranch className="text-5xl text-purple-400" />,
+                                title: 'Comparative Analysis',
+                                description:
+                                    'Evaluate algorithms side-by-side to see their performance differences in real time.',
                             },
                             {
-                                icon: <RiLightbulbFlashLine className="text-4xl text-pink-400" />,
-                                title: "Practical Applications",
-                                description: "See how algorithms are applied to solve real-world problems across various domains."
-                            }
+                                icon: <RiLightbulbFlashLine className="text-5xl text-pink-400" />,
+                                title: 'Real-World Relevance',
+                                description:
+                                    'Connect theory to practice by exploring how algorithms solve everyday computational challenges.',
+                            },
                         ].map((feature, i) => (
                             <motion.div
                                 key={i}
                                 variants={featureVariants}
-                                className="bg-gray-800/60 backdrop-blur-sm p-6 rounded-2xl border border-indigo-500/30 hover:border-indigo-500/60 transition-all duration-300"
+                                className="bg-gradient-to-br from-gray-800/70 to-gray-900/70 backdrop-blur-md p-6 rounded-2xl border border-indigo-500/40 hover:border-indigo-400 transition-all duration-300 shadow-lg"
                             >
                                 <div className="flex items-center mb-4">
                                     {feature.icon}
-                                    <h3 className="text-xl font-semibold ml-3 text-white">{feature.title}</h3>
+                                    <h3 className="text-xl md:text-2xl font-semibold ml-4 text-white">{feature.title}</h3>
                                 </div>
-                                <p className="text-gray-300">{feature.description}</p>
+                                <p className="text-gray-300 text-sm md:text-base leading-relaxed">{feature.description}</p>
                             </motion.div>
                         ))}
                     </motion.div>
                 </section>
 
                 {/* Categories Section */}
-                <section id="categories" className="w-full max-w-6xl mb-20 px-4">
+                <section id="categories" className="w-full max-w-7xl mb-24 px-4 relative z-10">
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl md:text-4xl font-bold text-center text-indigo-300 mb-12"
+                        className="text-3xl md:text-5xl font-bold text-center text-indigo-300 mb-16 drop-shadow-lg"
                     >
-                        Visualization Categories
+                        Explore Visualization Categories
                     </motion.h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                         {/* Sorting Card */}
                         <Link href="/sorting">
                             <motion.div
@@ -239,28 +250,38 @@ const HomePage = () => {
                                 viewport={{ once: true }}
                                 whileHover="hover"
                                 whileTap="tap"
-                                className="bg-gradient-to-br from-indigo-800/80 to-indigo-600/80 backdrop-blur-sm p-8 rounded-3xl shadow-lg border border-indigo-500/50 flex flex-col items-center text-center cursor-pointer transition-all duration-300 group h-full"
+                                className="bg-gradient-to-br from-indigo-800/90 to-indigo-600/90 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-indigo-500/60 flex flex-col text-center cursor-pointer transition-all duration-300 group h-full"
                             >
                                 <div className="relative mb-6">
-                                    <FaSort className="text-6xl text-indigo-300 transition-all duration-300 group-hover:scale-110" />
+                                    <FaSort className="text-7xl text-indigo-300 transition-all duration-300 group-hover:scale-110 group-hover:text-indigo-200" />
                                     <motion.div
-                                        className="absolute -inset-4 rounded-full bg-indigo-500/20"
-                                        animate={{ scale: [1, 1.2, 1] }}
+                                        className="absolute -inset-6 rounded-full bg-indigo-500/20"
+                                        animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
                                         transition={{ duration: 2, repeat: Infinity }}
                                     />
                                 </div>
-                                <h3 className="text-2xl font-semibold text-white mb-4">Sorting Algorithms</h3>
-                                <p className="text-gray-200">
-                                    Visualize how sorting algorithms like Merge Sort, QuickSort, and Bubble Sort rearrange data step-by-step with color-coded animations.
+                                <h3 className="text-2xl md:text-3xl font-semibold text-white mb-4">Sorting Algorithms</h3>
+                                <p className="text-gray-200 mb-6 text-sm md:text-base">
+                                    Watch sorting algorithms rearrange data with vibrant animations. Adjust speed, input custom arrays, and see time complexity in action.
                                 </p>
-                                <ul className="mt-4 text-gray-300 text-sm self-start">
-                                    <li className="mb-1">• Bubble Sort</li>
-                                    <li className="mb-1">• Merge Sort</li>
-                                    <li className="mb-1">• Quick Sort</li>
-                                    <li>• Heap Sort</li>
+                                <ul className="text-gray-300 text-sm md:text-base self-start text-left mb-6 space-y-2">
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-indigo-400 mr-2" /> Bubble Sort - O(n²)
+                                    </li>
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-indigo-400 mr-2" /> Merge Sort - O(n log n)
+                                    </li>
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-indigo-400 mr-2" /> Quick Sort - O(n log n)
+                                    </li>
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-indigo-400 mr-2" /> Heap Sort - O(n log n)
+                                    </li>
                                 </ul>
-                                <div className="mt-6 self-end">
-                                    <span className="text-indigo-300 font-medium group-hover:underline">Explore ›</span>
+                                <div className="mt-auto">
+                                    <span className="text-indigo-300 font-medium group-hover:underline group-hover:text-indigo-200 transition-all duration-300">
+                                        Explore Sorting →
+                                    </span>
                                 </div>
                             </motion.div>
                         </Link>
@@ -274,34 +295,44 @@ const HomePage = () => {
                                 viewport={{ once: true }}
                                 whileHover="hover"
                                 whileTap="tap"
-                                className="bg-gradient-to-br from-purple-800/80 to-purple-600/80 backdrop-blur-sm p-8 rounded-3xl shadow-lg border border-purple-500/50 flex flex-col items-center text-center cursor-pointer transition-all duration-300 group h-full"
+                                className="bg-gradient-to-br from-purple-800/90 to-purple-600/90 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-purple-500/60 flex flex-col text-center cursor-pointer transition-all duration-300 group h-full"
                             >
                                 <div className="relative mb-6">
-                                    <FaSearch className="text-6xl text-purple-300 transition-all duration-300 group-hover:scale-110" />
+                                    <FaSearch className="text-7xl text-purple-300 transition-all duration-300 group-hover:scale-110 group-hover:text-purple-200" />
                                     <motion.div
-                                        className="absolute -inset-4 rounded-full bg-purple-500/20"
-                                        animate={{ scale: [1, 1.2, 1] }}
+                                        className="absolute -inset-6 rounded-full bg-purple-500/20"
+                                        animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
                                         transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
                                     />
                                 </div>
-                                <h3 className="text-2xl font-semibold text-white mb-4">Searching Algorithms</h3>
-                                <p className="text-gray-200">
-                                    Explore searching techniques like Binary Search and Linear Search with real-time animations and performance comparisons.
+                                <h3 className="text-2xl md:text-3xl font-semibold text-white mb-4">Searching Algorithms</h3>
+                                <p className="text-gray-200 mb-6 text-sm md:text-base">
+                                    Dive into search algorithms with real-time tracking of comparisons and bounds. Customize targets and see efficiency visualized.
                                 </p>
-                                <ul className="mt-4 text-gray-300 text-sm self-start">
-                                    <li className="mb-1">• Binary Search</li>
-                                    <li className="mb-1">• Linear Search</li>
-                                    <li className="mb-1">• Jump Search</li>
-                                    <li>• Interpolation Search</li>
+                                <ul className="text-gray-300 text-sm md:text-base self-start text-left mb-6 space-y-2">
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-purple-400 mr-2" /> Binary Search - O(log n)
+                                    </li>
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-purple-400 mr-2" /> Linear Search - O(n)
+                                    </li>
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-purple-400 mr-2" /> DFS - O(V + E)
+                                    </li>
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-purple-400 mr-2" /> BFS - O(V + E)
+                                    </li>
                                 </ul>
-                                <div className="mt-6 self-end">
-                                    <span className="text-purple-300 font-medium group-hover:underline">Explore ›</span>
+                                <div className="mt-auto">
+                                    <span className="text-purple-300 font-medium group-hover:underline group-hover:text-purple-200 transition-all duration-300">
+                                        Explore Searching →
+                                    </span>
                                 </div>
                             </motion.div>
                         </Link>
 
-                        {/* DSA Card */}
-                        <Link href="/dsa">
+                        {/* Data Structures Card */}
+                        <Link href="/data_structures">
                             <motion.div
                                 variants={cardVariants}
                                 initial="hidden"
@@ -309,45 +340,78 @@ const HomePage = () => {
                                 viewport={{ once: true }}
                                 whileHover="hover"
                                 whileTap="tap"
-                                className="bg-gradient-to-br from-pink-800/80 to-pink-600/80 backdrop-blur-sm p-8 rounded-3xl shadow-lg border border-pink-500/50 flex flex-col items-center text-center cursor-pointer transition-all duration-300 group h-full"
+                                className="bg-gradient-to-br from-pink-800/90 to-pink-600/90 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-pink-500/60 flex flex-col text-center cursor-pointer transition-all duration-300 group h-full"
                             >
                                 <div className="relative mb-6">
-                                    <FaTable className="text-6xl text-pink-300 transition-all duration-300 group-hover:scale-110" />
+                                    <FaTable className="text-7xl text-pink-300 transition-all duration-300 group-hover:scale-110 group-hover:text-pink-200" />
                                     <motion.div
-                                        className="absolute -inset-4 rounded-full bg-pink-500/20"
-                                        animate={{ scale: [1, 1.2, 1] }}
+                                        className="absolute -inset-6 rounded-full bg-pink-500/20"
+                                        animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3] }}
                                         transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
                                     />
                                 </div>
-                                <h3 className="text-2xl font-semibold text-white mb-4">Data Structures</h3>
-                                <p className="text-gray-200">
-                                    Visualize and learn about Data Structures.
+                                <h3 className="text-2xl md:text-3xl font-semibold text-white mb-4">Data Structures</h3>
+                                <p className="text-gray-200 mb-6 text-sm md:text-base">
+                                    Visualize the mechanics of data structures with interactive diagrams and animations for operations like insertion and deletion.
                                 </p>
-                                <ul className="mt-4 text-gray-300 text-sm self-start">
-                                    <li className="mb-1">• Arrays</li>
-                                    <li className="mb-1">• Linked Lists</li>
-                                    <li className="mb-1">• Stacks</li>
-                                    <li>• Graphs</li>
+                                <ul className="text-gray-300 text-sm md:text-base self-start text-left mb-6 space-y-2">
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-pink-400 mr-2" /> Arrays - O(1) access
+                                    </li>
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-pink-400 mr-2" /> Linked Lists - O(n)
+                                    </li>
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-pink-400 mr-2" /> Stacks - O(1)
+                                    </li>
+                                    <li className="flex items-center">
+                                        <span className="h-2 w-2 rounded-full bg-pink-400 mr-2" /> Graphs - O(V + E)
+                                    </li>
                                 </ul>
-                                <div className="mt-6 self-end">
-                                    <span className="text-pink-300 font-medium group-hover:underline">Explore ›</span>
+                                <div className="mt-auto">
+                                    <span className="text-pink-300 font-medium group-hover:underline group-hover:text-pink-200 transition-all duration-300">
+                                        Explore Data Structures →
+                                    </span>
                                 </div>
                             </motion.div>
                         </Link>
                     </div>
                 </section>
 
-                {/* Social Links Section */}
-                <footer className="flex justify-center items-center mb-8 space-x-6">
-                    <motion.a href="https://github.com/your-github" target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} className="text-gray-400 hover:text-gray-300 transition-colors duration-300">
-                        <FaGithub className="text-xl" />
-                    </motion.a>
-                    <motion.a href="https://linkedin.com/in/your-linkedin" target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} className="text-gray-400 hover:text-gray-300 transition-colors duration-300">
-                        <FaLinkedin className="text-xl" />
-                    </motion.a>
-                    <motion.a href="https://twitter.com/your-twitter" target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} className="text-gray-400 hover:text-gray-300 transition-colors duration-300">
-                        <FaTwitter className="text-xl" />
-                    </motion.a>
+                {/* Footer Section */}
+                <footer className="w-full max-w-6xl mb-12 px-4 relative z-10">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="flex flex-col items-center text-center"
+                    >
+                        <h3 className="text-2xl md:text-3xl font-semibold text-indigo-300 mb-4">
+                            Connect With Us
+                        </h3>
+                        <p className="text-gray-400 mb-6 max-w-md">
+                            Follow us for updates, contribute to the project, or reach out with suggestions!
+                        </p>
+                        <div className="flex justify-center items-center space-x-8">
+                            {[
+                                { href: 'https://github.com/your-github', icon: <FaGithub className="text-2xl" /> },
+                                { href: 'https://linkedin.com/in/your-linkedin', icon: <FaLinkedin className="text-2xl" /> },
+                                { href: 'https://twitter.com/your-twitter', icon: <FaTwitter className="text-2xl" /> },
+                            ].map((social, i) => (
+                                <motion.a
+                                    key={i}
+                                    href={social.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    whileHover={{ scale: 1.2, rotate: 10 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    className="text-gray-400 hover:text-indigo-300 transition-all duration-300"
+                                >
+                                    {social.icon}
+                                </motion.a>
+                            ))}
+                        </div>
+                    </motion.div>
                 </footer>
             </div>
         </>

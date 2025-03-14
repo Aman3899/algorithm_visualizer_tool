@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaSearch, FaEdit } from 'react-icons/fa';
-import { MdSpeed } from 'react-icons/md';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Play, Pause, RefreshCw, Shuffle, ChartBar, Search, Edit, FastForward } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 
@@ -13,8 +12,8 @@ const FibonacciSearchVisualizer = () => {
     const [completed, setCompleted] = useState(false);
     const [speed, setSpeed] = useState(50);
     const [target, setTarget] = useState(null);
-    const [offset, setOffset] = useState(-1); // Current offset in Fibonacci search
-    const [fibIndices, setFibIndices] = useState([-1, -1, -1]); // [fibM2, fibM1, fib] indices
+    const [offset, setOffset] = useState(-1);
+    const [fibIndices, setFibIndices] = useState([-1, -1, -1]); // [current, fibM2, fibM1]
     const [foundIndex, setFoundIndex] = useState(-1);
     const [comparisons, setComparisons] = useState(0);
     const [customInput, setCustomInput] = useState('');
@@ -22,20 +21,22 @@ const FibonacciSearchVisualizer = () => {
     const [showInputModal, setShowInputModal] = useState(false);
     const [inputError, setInputError] = useState('');
 
+    const searchCancelRef = useRef(false);
     const timeoutRef = useRef(null);
-    const searchingRef = useRef(false);
+    const modalRef = useRef(null);
 
     // Generate random sorted array
-    const generateRandomArray = () => {
+    const generateRandomArray = useCallback(() => {
         const newArray = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 96) + 5);
-        newArray.sort((a, b) => a - b); // Fibonacci search requires sorted array
-        setArray(newArray);
-        setTarget(newArray[Math.floor(Math.random() * newArray.length)]);
+        const sortedArray = newArray.sort((a, b) => a - b);
+        setArray(sortedArray);
+        const randomTargetIndex = Math.floor(Math.random() * sortedArray.length);
+        setTarget(sortedArray[randomTargetIndex]);
         resetState();
-    };
+    }, [arraySize]);
 
     // Handle custom array and target input
-    const handleCustomInput = () => {
+    const handleCustomInput = useCallback(() => {
         setInputError('');
         try {
             const parsedArray = customInput
@@ -53,9 +54,10 @@ const FibonacciSearchVisualizer = () => {
             if (parsedArray.length === 0) throw new Error('Enter at least one number for the array');
             if (parsedArray.length > 50) throw new Error('Maximum 50 elements allowed');
 
-            parsedArray.sort((a, b) => a - b);
-            setArray(parsedArray);
-            setArraySize(parsedArray.length);
+            const sortedArray = parsedArray.sort((a, b) => a - b);
+            // Update state synchronously to ensure bars reflect the new values
+            setArray(sortedArray);
+            setArraySize(sortedArray.length);
             setTarget(targetNum);
             resetState();
             setShowInputModal(false);
@@ -64,256 +66,326 @@ const FibonacciSearchVisualizer = () => {
         } catch (error) {
             setInputError(error.message);
         }
-    };
+    }, [customInput, targetInput]);
 
     // Reset state
-    const resetState = () => {
+    const resetState = useCallback(() => {
         setCompleted(false);
         setComparisons(0);
         setOffset(-1);
         setFibIndices([-1, -1, -1]);
         setFoundIndex(-1);
-    };
-
-    useEffect(() => {
-        generateRandomArray();
+        searchCancelRef.current = false;
     }, []);
 
-    useEffect(() => {
-        searchingRef.current = searching;
-        return () => clearTimeout(timeoutRef.current);
-    }, [searching]);
+    // Sleep utility
+    const sleep = ms => new Promise(resolve => (timeoutRef.current = setTimeout(resolve, ms)));
 
     // Fibonacci Search implementation
-    const fibonacciSearch = async () => {
-        let tempArray = [...array];
+    const fibonacciSearch = useCallback(async () => {
         setSearching(true);
-        searchingRef.current = true;
+        resetState();
+
+        const arr = [...array];
+        const n = arr.length;
 
         let fibM2 = 0; // (m-2)'th Fibonacci number
         let fibM1 = 1; // (m-1)'th Fibonacci number
-        let fib = fibM1 + fibM2; // m'th Fibonacci number
+        let fibM = fibM2 + fibM1; // m'th Fibonacci number
 
-        // Find the smallest Fibonacci number greater than or equal to array length
-        while (fib < tempArray.length) {
+        // Find smallest Fibonacci number >= array length
+        while (fibM < n) {
             fibM2 = fibM1;
-            fibM1 = fib;
-            fib = fibM1 + fibM2;
+            fibM1 = fibM;
+            fibM = fibM2 + fibM1;
         }
 
-        let offset = -1; // Marks the eliminated range from the front
-        while (fib > 1 && searchingRef.current) {
-            const i = Math.min(offset + fibM2, tempArray.length - 1);
-            setOffset(offset);
-            setFibIndices([i, offset + fibM2, offset + fibM1]);
+        let offsetVal = -1;
+
+        while (fibM > 1 && !searchCancelRef.current) {
+            const i = Math.min(offsetVal + fibM2, n - 1);
+            setFibIndices([i, offsetVal + fibM2, offsetVal + fibM1]);
+            setOffset(offsetVal);
             setComparisons(prev => prev + 1);
 
             await sleep(1000 - speed * 9);
 
-            if (i < 0 || i >= tempArray.length) break;
+            if (searchCancelRef.current) break;
 
-            if (tempArray[i] === target) {
+            if (arr[i] === target) {
                 setFoundIndex(i);
                 setCompleted(true);
                 setSearching(false);
-                searchingRef.current = false;
                 return;
-            } else if (tempArray[i] < target) {
-                fib = fibM1;
+            } else if (arr[i] < target) {
+                fibM = fibM1;
                 fibM1 = fibM2;
-                fibM2 = fib - fibM1;
-                offset = i;
+                fibM2 = fibM - fibM1;
+                offsetVal = i;
             } else {
-                fib = fibM2;
+                fibM = fibM2;
                 fibM1 = fibM1 - fibM2;
-                fibM2 = fib - fibM1;
+                fibM2 = fibM - fibM1;
             }
         }
 
-        if (searchingRef.current) {
-            if (tempArray[offset + 1] === target) {
-                setFoundIndex(offset + 1);
-                setCompleted(true);
+        if (!searchCancelRef.current) {
+            if (offsetVal + 1 < n && arr[offsetVal + 1] === target) {
+                setFoundIndex(offsetVal + 1);
             } else {
-                setFoundIndex(-1); // Not found
-                setCompleted(true);
+                setFoundIndex(-1);
             }
-            setSearching(false);
-            setOffset(-1);
-            setFibIndices([-1, -1, -1]);
-            searchingRef.current = false;
+            setCompleted(true);
+        }
+        setSearching(false);
+        setOffset(-1);
+        setFibIndices([-1, -1, -1]);
+    }, [array, target, speed]);
+
+    useEffect(() => {
+        generateRandomArray();
+        return () => {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        };
+    }, [generateRandomArray]);
+
+    useEffect(() => {
+        if (showInputModal) {
+            document.addEventListener('mousedown', handleClickOutsideModal);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutsideModal);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutsideModal);
+    }, [showInputModal]);
+
+    const handleClickOutsideModal = e => {
+        if (modalRef.current && showInputModal && !modalRef.current.contains(e.target)) {
+            setShowInputModal(false);
         }
     };
 
-    const sleep = (ms) => new Promise(resolve => (timeoutRef.current = setTimeout(resolve, ms)));
-
-    const handleStart = () => {
-        if (!searching && !completed && target !== null) fibonacciSearch();
-    };
-
-    const handlePause = () => {
-        setSearching(false);
-        searchingRef.current = false;
-        clearTimeout(timeoutRef.current);
-    };
-
-    const handleReset = () => {
-        clearTimeout(timeoutRef.current);
-        setSearching(false);
-        searchingRef.current = false;
-        generateRandomArray();
-    };
-
-    const getBarColor = (index) => {
-        if (completed && foundIndex === index) return 'bg-gradient-to-t from-emerald-600 to-emerald-400';
-        if (fibIndices[0] === index) return 'bg-gradient-to-t from-yellow-600 to-yellow-400'; // Current index
-        if (fibIndices[1] === index || fibIndices[2] === index) return 'bg-gradient-to-t from-cyan-600 to-cyan-400'; // Fibonacci bounds
-        return 'bg-gradient-to-t from-indigo-600 to-indigo-400';
+    // Bar styling
+    const getBarColor = index => {
+        if (completed && foundIndex === index) return 'bg-gradient-to-t from-green-600 to-green-400 shadow-green-500/40';
+        if (fibIndices[0] === index) return 'bg-gradient-to-t from-yellow-600 to-yellow-400 shadow-yellow-500/40'; // Current check
+        if (fibIndices[1] === index || fibIndices[2] === index) return 'bg-gradient-to-t from-blue-600 to-blue-400 shadow-blue-500/40'; // Fib bounds
+        return 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-purple-500/40';
     };
 
     const getBarWidth = () => Math.max(100 / array.length, 1) + '%';
-    const getBarHeight = (value) => {
-        const maxHeight = 80;
+    const getBarHeight = value => {
+        const maxHeight = 90;
+        const minHeight = 5;
         const maxValue = Math.max(...array, 100);
-        return `${(value / maxValue) * maxHeight}%`;
+        return `${Math.min((value / maxValue) * (maxHeight - minHeight) + minHeight, maxHeight)}%`;
     };
 
     return (
         <>
             <Navbar />
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-black text-white px-4 py-24 font-sans">
+            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-black text-white flex items-center justify-center px-4 py-24 max-sm:py-20 font-sans">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="max-w-7xl mx-auto bg-gray-800/90 rounded-3xl shadow-2xl p-8 border border-indigo-600/40"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="w-full max-w-7xl bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-purple-600/40 overflow-hidden"
                 >
-                    <h1 className="text-4xl md:text-5xl font-extrabold mb-10 text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+                    <h1 className="text-5xl font-extrabold mb-10 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-indigo-400 to-pink-400">
                         Fibonacci Search Visualizer
                     </h1>
 
                     {/* Controls */}
-                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-10">
                         {[
-                            { icon: <FaPlay />, text: 'Start', onClick: handleStart, disabled: searching || completed || target === null, bg: 'bg-emerald-600' },
-                            { icon: <FaPause />, text: 'Pause', onClick: handlePause, disabled: !searching, bg: 'bg-amber-600' },
-                            { icon: <FaRedo />, text: 'Reset', onClick: handleReset, bg: 'bg-rose-600' },
-                            { icon: <FaRandom />, text: 'Random', onClick: generateRandomArray, disabled: searching, bg: 'bg-purple-600' },
-                            { icon: <FaEdit />, text: 'Custom', onClick: () => setShowInputModal(true), disabled: searching, bg: 'bg-teal-600' },
-                            { icon: <FaSearch />, text: `Target: ${target !== null ? target : 'N/A'}`, disabled: true, bg: 'bg-indigo-600' },
+                            {
+                                icon: <Play size={20} />,
+                                text: 'Start',
+                                onClick: () => !searching && target !== null && fibonacciSearch(),
+                                disabled: searching || target === null,
+                                bg: 'bg-green-600',
+                            },
+                            {
+                                icon: <Pause size={20} />,
+                                text: 'Stop',
+                                onClick: () => {
+                                    searchCancelRef.current = true;
+                                    setSearching(false);
+                                    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                                },
+                                disabled: !searching,
+                                bg: 'bg-red-600',
+                            },
+                            {
+                                icon: <RefreshCw size={20} />,
+                                text: 'Reset',
+                                onClick: () => {
+                                    searchCancelRef.current = true;
+                                    setSearching(false);
+                                    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                                    generateRandomArray();
+                                },
+                                bg: 'bg-rose-600',
+                            },
+                            {
+                                icon: <Shuffle size={20} />,
+                                text: 'Random',
+                                onClick: generateRandomArray,
+                                disabled: searching,
+                                bg: 'bg-blue-600',
+                            },
+                            {
+                                icon: <Edit size={20} />,
+                                text: 'Custom',
+                                onClick: () => setShowInputModal(true),
+                                disabled: searching,
+                                bg: 'bg-teal-600',
+                            },
                         ].map((btn, idx) => (
                             <motion.button
                                 key={idx}
-                                whileHover={{ scale: btn.disabled ? 1 : 1.05, boxShadow: btn.disabled ? '' : '0 0 15px rgba(255,255,255,0.2)' }}
+                                whileHover={{ scale: btn.disabled ? 1 : 1.05, boxShadow: btn.disabled ? '' : '0 0 20px rgba(255,255,255,0.2)' }}
                                 whileTap={{ scale: btn.disabled ? 1 : 0.95 }}
                                 onClick={btn.onClick}
                                 disabled={btn.disabled}
-                                className={`${btn.bg} ${btn.disabled && !btn.icon.toString().includes('FaSearch') ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110'} flex items-center justify-center gap-2 p-3 rounded-xl text-lg font-semibold transition-all`}
+                                className={`flex items-center justify-center gap-2 p-4 rounded-xl text-lg font-semibold ${btn.bg} ${btn.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-125'} transition-all duration-300`}
                             >
                                 {btn.icon} {btn.text}
                             </motion.button>
                         ))}
-                    </div>
-
-                    {/* Sliders */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div>
-                            <label className="flex items-center gap-2 text-lg font-semibold text-indigo-300"><FaChartBar /> Size</label>
+                        <div className="flex flex-col gap-3">
+                            <label className="flex items-center gap-2 text-lg font-semibold">
+                                <ChartBar size={20} /> Size
+                            </label>
                             <input
                                 type="range"
                                 min="5"
                                 max="50"
                                 value={arraySize}
-                                onChange={(e) => !searching && (setArraySize(parseInt(e.target.value)), generateRandomArray())}
+                                onChange={e => !searching && (setArraySize(parseInt(e.target.value)), generateRandomArray())}
                                 disabled={searching}
-                                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                className="w-full accent-purple-500 cursor-pointer"
                             />
-                            <span className="text-sm text-gray-400">{array.length} elements</span>
+                            <span className="text-xs text-gray-300">{array.length} elements</span>
                         </div>
-                        <div>
-                            <label className="flex items-center gap-2 text-lg font-semibold text-indigo-300"><MdSpeed /> Speed</label>
+                        <div className="flex flex-col gap-3">
+                            <label className="flex items-center gap-2 text-lg font-semibold">
+                                <FastForward size={20} /> Speed
+                            </label>
                             <input
                                 type="range"
                                 min="1"
                                 max="100"
                                 value={speed}
-                                onChange={(e) => setSpeed(parseInt(e.target.value))}
-                                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                onChange={e => setSpeed(Number(e.target.value))}
+                                className="w-full accent-purple-500 cursor-pointer"
                             />
-                            <span className="text-sm text-gray-400">{speed}%</span>
+                            <span className="text-xs text-gray-300">{speed}%</span>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <label className="flex items-center gap-2 text-lg font-semibold">
+                                <Search size={20} /> Target
+                            </label>
+                            <div className="bg-gray-700 p-3 rounded-lg text-center text-white font-mono">
+                                {target !== null ? target : 'N/A'}
+                            </div>
                         </div>
                     </div>
 
                     {/* Statistics */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
                         {[
                             { label: 'Comparisons', value: comparisons, color: 'text-cyan-400' },
-                            { label: 'Status', value: completed ? (foundIndex >= 0 ? 'Found' : 'Not Found') : searching ? 'Searching' : 'Idle', color: completed ? (foundIndex >= 0 ? 'text-emerald-400' : 'text-rose-400') : searching ? 'text-amber-400' : 'text-gray-400' },
-                            { label: 'Found At', value: foundIndex >= 0 ? `Index ${foundIndex}` : 'N/A', color: 'text-indigo-400' },
+                            { label: 'Status', value: completed ? (foundIndex >= 0 ? 'Found' : 'Not Found') : searching ? 'Searching' : 'Idle', color: completed ? (foundIndex >= 0 ? 'text-green-400' : 'text-rose-400') : searching ? 'text-amber-400' : 'text-gray-400' },
+                            { label: 'Found At', value: foundIndex >= 0 ? `Index ${foundIndex}` : 'N/A', color: 'text-purple-400' },
                         ].map((stat, idx) => (
                             <motion.div
                                 key={idx}
-                                className="bg-gray-700/70 p-4 rounded-xl border border-indigo-600/20"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
+                                className="bg-gray-700/70 p-5 rounded-xl shadow-lg border border-purple-600/20"
                             >
-                                <span className="font-semibold text-gray-300">{stat.label}: </span>
+                                <span className="font-semibold text-gray-200">{stat.label}: </span>
                                 <span className={`font-bold ${stat.color}`}>{stat.value}</span>
                             </motion.div>
                         ))}
                     </div>
 
-                    {/* Array Visualization */}
-                    <div className="bg-gray-700/70 rounded-3xl p-6 h-96 flex items-end justify-center gap-1 overflow-x-auto border border-indigo-600/30">
-                        {array.map((value, index) => (
-                            <motion.div
-                                key={index}
-                                className={`${getBarColor(index)} rounded-t-xl relative`}
-                                style={{ height: getBarHeight(value), width: getBarWidth(), maxWidth: '40px', minWidth: '10px' }}
-                                animate={{
-                                    y: fibIndices.includes(index) ? -15 : 0,
-                                    scale: fibIndices.includes(index) ? 1.05 : 1,
-                                }}
-                                transition={{ duration: 0.3 }}
-                            >
-                                <span className="text-white text-xs md:text-sm font-mono absolute top-1 left-1/2 transform -translate-x-1/2 drop-shadow">
-                                    {value}
-                                </span>
-                                {fibIndices[0] === index && <span className="absolute -top-8 text-yellow-300 text-xs">Check</span>}
-                                {fibIndices[1] === index && <span className="absolute -top-8 text-cyan-300 text-xs">Fib-1</span>}
-                                {fibIndices[2] === index && <span className="absolute -top-8 text-cyan-300 text-xs">Fib</span>}
-                            </motion.div>
-                        ))}
+                    {/* Visualization */}
+                    <div className="bg-gray-700/70 rounded-3xl p-6 h-96 flex items-end justify-center gap-2 overflow-x-auto border border-purple-600/40">
+                        <AnimatePresence>
+                            {array.map((value, index) => (
+                                <motion.div
+                                    key={index}
+                                    initial={{ height: 0 }}
+                                    animate={{
+                                        height: getBarHeight(value),
+                                        y: fibIndices.includes(index) ? -15 : 0,
+                                        scale: fibIndices.includes(index) ? 1.05 : 1,
+                                    }}
+                                    exit={{ height: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className={`${getBarColor(index)} rounded-t-xl shadow-lg relative`}
+                                    style={{ width: getBarWidth(), maxWidth: '50px', minWidth: '8px' }}
+                                >
+                                    {array.length <= 30 && (
+                                        <span className="text-white text-xs font-mono font-bold absolute top-2 left-1/2 transform -translate-x-1/2 drop-shadow-lg">
+                                            {value}
+                                        </span>
+                                    )}
+                                    {fibIndices[0] === index && <span className="absolute -top-8 text-yellow-400 text-xs">Check</span>}
+                                    {fibIndices[1] === index && <span className="absolute -top-8 text-blue-400 text-xs">Fib-2</span>}
+                                    {fibIndices[2] === index && <span className="absolute -top-8 text-blue-400 text-xs">Fib-1</span>}
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
                     </div>
 
                     {/* Explanation */}
                     <motion.div
-                        className="mt-8 bg-gray-700/70 p-6 rounded-3xl border border-indigo-600/30"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 0.4 }}
+                        className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-purple-600/40"
                     >
-                        <h2 className="text-2xl font-bold mb-4 text-indigo-400">Fibonacci Search Explained</h2>
-                        <p className="text-gray-300 mb-4">
-                            Fibonacci Search is a comparison-based technique that uses Fibonacci numbers to narrow down the search space in a sorted array. It’s particularly efficient for uniformly distributed data, avoiding division operations used in binary search.
+                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Fibonacci Search Explained</h2>
+                        <p className="text-gray-200 mb-6">
+                            Fibonacci Search is a comparison-based technique that leverages Fibonacci numbers to efficiently search a sorted array. It avoids division operations (unlike Binary Search) by using addition and subtraction, making it suitable for certain hardware or uniformly distributed data.
                         </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <h3 className="text-lg font-semibold text-indigo-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-300 list-disc list-inside">
-                                    <li>Time Complexity: O(log n) average</li>
-                                    <li>Space Complexity: O(1)</li>
-                                    <li>Prerequisite: Sorted array</li>
-                                    <li>Best for: Uniformly distributed data</li>
+                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Key Details</h3>
+                                <ul className="text-gray-200 list-disc list-inside">
+                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(log n)</li>
+                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1)</li>
+                                    <li><span className="font-semibold text-purple-400">Prerequisite:</span> Sorted array</li>
+                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Uniform data, division-free search</li>
                                 </ul>
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold text-indigo-300 mb-2">Steps</h3>
-                                <ol className="text-gray-300 list-decimal list-inside">
-                                    <li>Find smallest Fibonacci number ≥ array size</li>
-                                    <li>Compare target with element at Fib-2 offset</li>
-                                    <li>Adjust Fibonacci numbers and offset based on comparison</li>
-                                    <li>Repeat until found or search space is exhausted</li>
-                                </ol>
+                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Pseudocode</h3>
+                                <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
+                                    {`fibonacciSearch(arr, target):
+    fibM2 = 0, fibM1 = 1, fibM = fibM1 + fibM2
+    offset = -1
+    while fibM < arr.length:
+        fibM2 = fibM1
+        fibM1 = fibM
+        fibM = fibM1 + fibM2
+    while fibM > 1:
+        i = min(offset + fibM2, arr.length - 1)
+        if arr[i] == target:
+            return i
+        if arr[i] < target:
+            offset = i
+            fibM = fibM1
+            fibM1 = fibM2
+            fibM2 = fibM - fibM1
+        else:
+            fibM = fibM2
+            fibM1 = fibM1 - fibM2
+            fibM2 = fibM - fibM1
+    if fibM1 == 1 and arr[offset + 1] == target:
+        return offset + 1
+    return -1`}
+                                </pre>
                             </div>
                         </div>
                     </motion.div>
@@ -322,46 +394,50 @@ const FibonacciSearchVisualizer = () => {
                     <AnimatePresence>
                         {showInputModal && (
                             <motion.div
-                                className="fixed inset-0 flex items-center justify-center z-50 bg-black/70"
+                                className="fixed inset-0 flex items-center justify-center z-50"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
+                                style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
                             >
                                 <motion.div
-                                    className="bg-gray-800 rounded-3xl p-6 w-full max-w-md border border-indigo-600/40"
+                                    ref={modalRef}
+                                    className="bg-gray-800 rounded-3xl shadow-2xl p-6 w-full max-w-lg border border-purple-600/40"
                                     initial={{ scale: 0.9, y: 20 }}
                                     animate={{ scale: 1, y: 0 }}
                                     exit={{ scale: 0.9, y: 20 }}
                                 >
-                                    <h2 className="text-2xl font-bold mb-4 text-indigo-400">Custom Input</h2>
+                                    <h2 className="text-3xl font-bold mb-4 text-purple-400">Custom Input</h2>
                                     <input
                                         type="text"
                                         value={customInput}
-                                        onChange={(e) => setCustomInput(e.target.value)}
+                                        onChange={e => setCustomInput(e.target.value)}
                                         placeholder="e.g., 10, 20, 30, 40"
-                                        className="w-full p-3 bg-gray-700 rounded-lg text-white border border-indigo-600/40 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 mb-4"
+                                        className="w-full p-4 bg-gray-700 rounded-lg text-white border border-purple-600/40 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 transition-all mb-3"
                                     />
                                     <input
                                         type="text"
                                         value={targetInput}
-                                        onChange={(e) => setTargetInput(e.target.value)}
+                                        onChange={e => setTargetInput(e.target.value)}
                                         placeholder="Target (e.g., 30)"
-                                        className="w-full p-3 bg-gray-700 rounded-lg text-white border border-indigo-600/40 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                                        className="w-full p-4 bg-gray-700 rounded-lg text-white border border-purple-600/40 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 transition-all mb-3"
                                     />
-                                    {inputError && <p className="text-rose-400 text-sm mt-2">{inputError}</p>}
-                                    <p className="text-gray-400 text-sm mt-2">Enter positive numbers (max 50) and a target value.</p>
-                                    <div className="flex gap-4 justify-end mt-4">
+                                    {inputError && <p className="text-rose-400 text-sm mb-3">{inputError}</p>}
+                                    <p className="text-gray-300 text-sm mb-4">Enter positive numbers (max 50) and a target value, separated by commas or spaces.</p>
+                                    <div className="flex gap-4 justify-end">
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
                                             onClick={() => setShowInputModal(false)}
-                                            className="bg-rose-600 hover:brightness-110 text-white py-2 px-4 rounded-lg"
+                                            className="bg-rose-600 hover:brightness-125 text-white py-2 px-4 rounded-lg transition-all"
                                         >
                                             Cancel
                                         </motion.button>
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
                                             onClick={handleCustomInput}
-                                            className="bg-teal-600 hover:brightness-110 text-white py-2 px-4 rounded-lg"
+                                            className="bg-teal-600 hover:brightness-125 text-white py-2 px-4 rounded-lg transition-all"
                                         >
                                             Submit
                                         </motion.button>
