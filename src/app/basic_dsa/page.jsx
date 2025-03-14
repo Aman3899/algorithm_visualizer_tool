@@ -1,8 +1,9 @@
 "use client";
 
 import Link from 'next/link';
-import { FaList, FaEye, FaTable, FaInfoCircle, FaCode, FaChartBar, FaTree, FaDatabase, FaSearch } from 'react-icons/fa';
+import { FaList, FaEye, FaTable, FaInfoCircle, FaChartBar, FaTree, FaDatabase } from 'react-icons/fa';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 
 export default function DSAContentPage() {
@@ -12,265 +13,322 @@ export default function DSAContentPage() {
         {
             name: 'Linked List',
             path: '/basic_dsa/linked_list',
-            description: 'A linear data structure where elements are linked using pointers.',
-            useCase: 'Implementing stacks, queues, and graphs.'
-        },{
+            description: 'A linear data structure where elements are linked using pointers. Useful for dynamic memory.',
+            useCase: 'Implementing stacks, queues, and managing dynamic data.'
+        },
+        {
             name: 'Doubly Linked List',
             path: '/basic_dsa/doubly_linked_list',
-            description: 'A linear data structure where elements are linked using double pointers.',
-            useCase: 'Implementing stacks, queues, and graphs.'
+            description: 'Bidirectional linear structure for efficient forward/backward traversal. Each node has two pointers: One to the next node, and another to the node previous to it.',
+            useCase: 'Undo/redo operations, browser history, music playlists.'
         },
         {
             name: 'Array',
             path: '/basic_dsa/array',
-            description: 'A collection of items stored at contiguous memory locations.',
-            useCase: 'Storing and accessing sequential data.'
+            description: 'Indexed data collection for accessing sequential elements in contiguous memory. These elements have the same type.',
+            useCase: 'Storing and accessing fixed-size data, image processing.'
         },
         {
             name: 'Stack',
             path: '/basic_dsa/stack',
-            description: 'A LIFO (Last In First Out) data structure.',
-            useCase: 'Function calls, expression evaluation.'
+            description: 'Follows the Last In First Out (LIFO) principle. Push adds to the top, pop removes the top element.',
+            useCase: 'Function calls, expression evaluation, managing history.'
         },
         {
             name: 'Queue',
             path: '/basic_dsa/queue',
-            description: 'A FIFO (First In First Out) data structure.',
-            useCase: 'Task scheduling, resource management.'
+            description: 'Follows the First In First Out (FIFO) principle. Enqueue adds to the rear, dequeue removes the front element.',
+            useCase: 'Task scheduling, print queue, managing requests.'
         },
         {
-            name: 'Binary Tree',
+            name: 'Binary Search Tree',
             path: '/basic_dsa/binary_tree',
-            description: 'A tree data structure where each node has at most two children.',
-            useCase: 'Searching, sorting, and indexing data.'
+            description: 'A tree where each node has at most two children, maintains sorted order. Search and insertion are quick O(log n).',
+            useCase: 'Searching, sorting, and data indexing for retrieval.'
         },
         {
             name: 'Hash Table',
             path: '/basic_dsa/hash_table',
-            description: 'A data structure that implements an associative array abstract data type.',
-            useCase: 'Implementing dictionaries and caching.'
+            description: 'Associative array to stores key-value pairs. Provides fast lookups (O(1) on average).',
+            useCase: 'Implementing dictionaries and speeding up data retrieval.'
         },
         {
             name: 'Graph',
-            path: '/basic_dsa/graph',
-            description: 'A data structure consisting of nodes (vertices) connected by edges.',
-            useCase: 'Modeling networks, social connections.'
+            path: '/basic_dsa/graph_list_matrix',
+            description: 'Consists of nodes connected by edges, useful for modeling relationships. Can be directed or undirected.',
+            useCase: 'Social networks, routing, web connections, recommendation systems.'
         },
+        {
+            name: 'B-Tree',
+            path: '/basic_dsa/b_tree',
+            description: 'Self-balancing tree optimized for disk storage, minimizes disk access. Good for large databases.',
+            useCase: 'Database indexing, efficient file systems, large dataset storage.'
+        }
     ];
 
-    const algorithms = [
+    const applications = [
         {
-            name: 'Binary Search',
-            path: '/basic_dsa/binary_search',
-            description: 'Efficient algorithm for finding an item from a sorted list.',
-            useCase: 'Searching in sorted arrays.'
+            name: 'Linked List',
+            application: 'Dynamic Memory Management',
+            description: 'Used for flexible memory allocation in programs, adjusting size as needed.',
+            icon: <FaList className="text-cyan-400" />
         },
         {
-            name: 'Depth-First Search (DFS)',
-            path: '/basic_dsa/dfs',
-            description: 'Traversal algorithm for graph or tree data structures.',
-            useCase: 'Pathfinding, topological sorting.'
+            name: 'Doubly Linked List',
+            application: 'Music Playlist Navigation',
+            description: 'Offers forward and backward navigation of songs, user-friendly control.',
+            icon: <FaTree className="text-teal-400" />
         },
         {
-            name: 'Breadth-First Search (BFS)',
-            path: '/basic_dsa/bfs',
-            description: 'Traversal algorithm that explores neighbor nodes first.',
-            useCase: 'Shortest path finding, network traversal.'
+            name: 'Array',
+            application: 'Image Processing',
+            description: 'Efficiently stores pixel data to allow for easy image manipulation.',
+            icon: <FaTable className="text-indigo-400" />
         },
         {
-            name: 'Sorting Algorithms',
-            path: '/sorting',
-            description: 'Algorithms for sorting data like Bubble Sort, Merge Sort, Quick Sort etc.',
-            useCase: 'Data processing, database indexing.'
+            name: 'Stack',
+            application: 'Undo Functionality',
+            description: 'Tracks previous states enabling user-friendly error correction.',
+            icon: <FaChartBar className="text-cyan-400" />
         },
+        {
+            name: 'Queue',
+            application: 'Print Queue',
+            description: 'Manages print jobs to prevent overload of the printing system.',
+            icon: <FaDatabase className="text-teal-400" />
+        },
+        {
+            name: 'Binary Search Tree',
+            application: 'Expression Trees',
+            description: 'Calculates expressions efficiently by structural representation.',
+            icon: <FaTree className="text-indigo-400" />
+        },
+        {
+            name: 'Hash Table',
+            application: 'Caching Systems',
+            description: 'Speeds up data access in web applications by storing frequent requests.',
+            icon: <FaTable className="text-cyan-400" />
+        },
+        {
+            name: 'Graph',
+            application: 'Social Networks',
+            description: 'Represent user relationships and connections to better understand patterns.',
+            icon: <FaChartBar className="text-teal-400" />
+        },
+        {
+            name: 'B-Tree',
+            application: 'Database Indexing',
+            description: 'Optimizes database querying with balanced tree structures, minimizing disk access.',
+            icon: <FaDatabase className="text-indigo-400" />
+        }
     ];
 
     const complexityData = [
         { name: 'Linked List (Search)', best: 'O(1)', worst: 'O(n)', average: 'O(n)' },
+        { name: 'Doubly Linked List (Search)', best: 'O(1)', worst: 'O(n)', average: 'O(n)' },
         { name: 'Array (Access)', best: 'O(1)', worst: 'O(1)', average: 'O(1)' },
         { name: 'Stack (Push/Pop)', best: 'O(1)', worst: 'O(1)', average: 'O(1)' },
         { name: 'Queue (Enqueue/Dequeue)', best: 'O(1)', worst: 'O(1)', average: 'O(1)' },
-        { name: 'Binary Tree (Search)', best: 'O(log n)', worst: 'O(n)', average: 'O(log n)' },
+        { name: 'Binary Search Tree (Search)', best: 'O(log n)', worst: 'O(n)', average: 'O(log n)' },
         { name: 'Hash Table (Lookup)', best: 'O(1)', worst: 'O(n)', average: 'O(1)' },
         { name: 'Graph (DFS/BFS)', best: 'O(V+E)', worst: 'O(V+E)', average: 'O(V+E)' },
-        { name: 'Binary Search', best: 'O(1)', worst: 'O(log n)', average: 'O(log n)' },
+        { name: 'B-Tree (Search)', best: 'O(log n)', worst: 'O(log n)', average: 'O(log n)' },
     ];
 
+    // Animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    };
+
     return (
-        <>
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-cyan-900 to-indigo-900 text-white flex flex-col font-sans">
             <Navbar />
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-black text-white flex flex-col font-sans">
-                {/* Hero Section with Animated Background */}
-                <div className="relative overflow-hidden">
-                    <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-                    <div className="relative py-24 md:py-32 px-4 flex items-center justify-center">
-                        <div className="text-center max-w-3xl mx-auto space-y-6">
-                            <div className="inline-block p-2 bg-indigo-500/20 rounded-full mb-4">
-                                <FaTable className="text-3xl text-indigo-400" />
-                            </div>
-                            <h1 className="text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400">
-                                Data Structures and Algorithms
-                            </h1>
-                            <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
-                                Explore fundamental Data Structures and Algorithms. Learn their properties, implementations, and use cases.
-                            </p>
-                            <div className="pt-4">
-                                <a href="#explore" className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 transition-colors px-6 py-3 rounded-lg font-medium">
-                                    Explore Content
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+            {/* Hero Section */}
+            <motion.div
+                initial={{ opacity: 0, y: -50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+                className="relative overflow-hidden py-16 md:py-24 px-4 flex items-center justify-center bg-gradient-to-b from-cyan-800/20 to-indigo-900/20 backdrop-blur-sm"
+            >
+                <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+                <div className="relative text-center max-w-5xl mx-auto space-y-6 z-10">
+                    <motion.div
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                        className="inline-block p-4 bg-cyan-500/20 rounded-full mb-4 shadow-lg"
+                    >
+                        <FaTable className="text-5xl text-cyan-400" />
+                    </motion.div>
+                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-teal-300 to-indigo-400 tracking-tight drop-shadow-lg">
+                        Unlocking Data Structures & Algorithms
+                    </h1>
+                    <p className="text-gray-200 text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto font-light">
+                        A journey through data manipulation, optimization, and algorithmic thinking.
+                    </p>
+                    <motion.a
+                        href="#explore"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="inline-flex items-center gap-3 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 transition-all px-8 py-4 rounded-xl font-semibold text-white shadow-lg mt-6"
+                    >
+                        Explore Now
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 17a1 1 0 01-.707-1.707l5.293-5.293H3a1 1 0 010-2h11.586l-5.293-5.293A1 1 0 1110.707 3.293l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-.707 0z" clipRule="evenodd" />
+                        </svg>
+                    </motion.a>
                 </div>
+            </motion.div>
 
-                {/* Main Content */}
-                <div id="explore" className="container mx-auto px-4 py-16 max-w-7xl">
-                    {/* Tab Navigation */}
-                    <div className="flex flex-wrap justify-center gap-2 mb-12">
-                        <button
-                            onClick={() => setActiveTab('data_structures')}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'data_structures' ? 'bg-indigo-600 text-white' : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50'
-                                }`}
-                        >
-                            <FaList />
-                            Data Structures
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('algorithms')}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'algorithms' ? 'bg-indigo-600 text-white' : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50'
-                                }`}
-                        >
-                            <FaCode />
-                            Algorithms
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('complexity')}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'complexity' ? 'bg-indigo-600 text-white' : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50'
-                                }`}
-                        >
-                            <FaChartBar />
-                            Complexity
-                        </button>
-                    </div>
+            {/* Main Content */}
+            <div id="explore" className="container mx-auto px-4 py-16 max-w-7xl">
+                {/* Tab Navigation */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    className="flex flex-wrap justify-center gap-4 mb-12 bg-gray-800/50 p-2 rounded-xl backdrop-blur-md border border-cyan-500/20"
+                >
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setActiveTab('data_structures')}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'data_structures' ? 'bg-gradient-to-r from-cyan-600 to-teal-600 text-white shadow-lg' : 'bg-gray-800/70 text-gray-300 hover:bg-gray-700/50'}`}
+                    >
+                        <FaList /> Data Structures
+                    </motion.button>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setActiveTab('applications')}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'applications' ? 'bg-gradient-to-r from-cyan-600 to-teal-600 text-white shadow-lg' : 'bg-gray-800/70 text-gray-300 hover:bg-gray-700/50'}`}
+                    >
+                        <FaChartBar /> Applications
+                    </motion.button>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setActiveTab('complexity')}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${activeTab === 'complexity' ? 'bg-gradient-to-r from-cyan-600 to-teal-600 text-white shadow-lg' : 'bg-gray-800/70 text-gray-300 hover:bg-gray-700/50'}`}
+                    >
+                        <FaTable /> Complexity
+                    </motion.button>
+                </motion.div>
 
-                    {/* Data Structures Grid */}
-                    {activeTab === 'data_structures' && (
-                        <div className="space-y-8">
-                            <h2 className="text-3xl font-bold text-center mb-10">Explore Data Structures</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {dataStructures.map((ds) => (
+                {/* Data Structures Grid */}
+                {activeTab === 'data_structures' && (
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
+                        <h2 className="text-4xl font-bold text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-teal-400">
+                            Core Data Structures
+                        </h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {dataStructures.map((ds) => (
+                                <motion.div key={ds.name} variants={itemVariants}>
                                     <Link
-                                        key={ds.name}
                                         href={ds.path}
-                                        className="group bg-gradient-to-br from-gray-800/80 to-indigo-900/30 p-6 rounded-xl hover:from-indigo-900/50 hover:to-purple-900/30 transition-all duration-300 border border-indigo-500/20 hover:border-indigo-400/50 hover:shadow-lg hover:shadow-indigo-500/10"
+                                        className="group block bg-gradient-to-br from-gray-800/80 to-cyan-900/30 p-6 rounded-xl hover:from-cyan-900/50 hover:to-teal-900/30 transition-all duration-300 border border-cyan-500/20 hover:border-teal-400/50 hover:shadow-lg hover:shadow-teal-500/20 backdrop-blur-sm"
                                     >
-                                        <div className="flex items-center justify-between">
-                                            <h2 className="text-xl font-semibold group-hover:text-indigo-300 transition-colors">{ds.name}</h2>
-                                            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-500/20 group-hover:bg-indigo-500/40 transition-colors">
-                                                <FaEye className="text-indigo-400" />
-                                            </div>
+                                        <div className="flex items-start justify-between">
+                                            <h2 className="text-xl font-semibold group-hover:text-teal-300 transition-colors">{ds.name}</h2>
+                                            <motion.div
+                                                whileHover={{ rotate: 360 }}
+                                                transition={{ duration: 0.5 }}
+                                                className="w-10 h-10 flex items-center justify-center rounded-full bg-cyan-500/20 group-hover:bg-teal-500/40 transition-colors"
+                                            >
+                                                <FaEye className="text-teal-400" />
+                                            </motion.div>
                                         </div>
-                                        <p className="text-gray-400 mt-3 mb-4 text-sm line-clamp-2">{ds.description}</p>
-                                        <div className="text-xs text-indigo-400/80 bg-indigo-900/30 py-1 px-3 rounded-full inline-block">
+                                        <p className="text-gray-300 mt-3 mb-4 text-sm line-clamp-3">{ds.description}</p>
+                                        <div className="text-xs text-teal-400/80 bg-teal-900/30 py-1 px-3 rounded-full inline-block">
                                             Best for: {ds.useCase}
                                         </div>
                                     </Link>
-                                ))}
-                            </div>
+                                </motion.div>
+                            ))}
                         </div>
-                    )}
+                    </motion.div>
+                )}
 
-                    {/* Algorithms Grid */}
-                    {activeTab === 'algorithms' && (
-                        <div className="space-y-8">
-                            <h2 className="text-3xl font-bold text-center mb-10">Explore Algorithms</h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {algorithms.map((algo) => (
-                                    <Link
-                                        key={algo.name}
-                                        href={algo.path}
-                                        className="group bg-gradient-to-br from-gray-800/80 to-indigo-900/30 p-6 rounded-xl hover:from-indigo-900/50 hover:to-purple-900/30 transition-all duration-300 border border-indigo-500/20 hover:border-indigo-400/50 hover:shadow-lg hover:shadow-indigo-500/10"
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <h2 className="text-xl font-semibold group-hover:text-indigo-300 transition-colors">{algo.name}</h2>
-                                            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-indigo-500/20 group-hover:bg-indigo-500/40 transition-colors">
-                                                <FaSearch className="text-indigo-400" />
-                                            </div>
+                {/* Applications Grid */}
+                {activeTab === 'applications' && (
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
+                        <h2 className="text-4xl font-bold text-center mb-10 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-teal-400">
+                            Practical Applications
+                        </h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {applications.map((app) => (
+                                <motion.div key={app.name} variants={itemVariants}>
+                                    <div className="bg-gradient-to-br from-gray-800/80 to-cyan-900/30 p-6 rounded-xl hover:from-cyan-900/50 hover:to-teal-900/30 transition-all duration-300 border border-cyan-500/20 hover:border-teal-400/50 hover:shadow-lg hover:shadow-teal-500/20 backdrop-blur-sm h-full flex flex-col">
+                                        <div className="flex items-start justify-between mb-3">
+                                            <h2 className="text-xl font-semibold group-hover:text-teal-300 transition-colors">{app.name}</h2>
+                                            <motion.div
+                                                whileHover={{ scale: 1.2 }}
+                                                transition={{ type: "spring", stiffness: 200 }}
+                                                className="w-10 h-10 flex items-center justify-center rounded-full bg-cyan-500/20 group-hover:bg-teal-500/40 transition-colors"
+                                            >
+                                                {app.icon}
+                                            </motion.div>
                                         </div>
-                                        <p className="text-gray-400 mt-3 mb-4 text-sm line-clamp-2">{algo.description}</p>
-                                        <div className="text-xs text-indigo-400/80 bg-indigo-900/30 py-1 px-3 rounded-full inline-block">
-                                            Best for: {algo.useCase}
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
+                                        <p className="text-teal-300 mt-2 font-medium">{app.application}</p>
+                                        <p className="text-gray-300 mt-3 text-sm">{app.description}</p>
+                                        <div className="mt-auto"></div> 
+                                    </div>
+                                </motion.div>
+                            ))}
                         </div>
-                    )}
+                    </motion.div>
+                )}
 
-                    {/* Complexity Table */}
-                    {activeTab === 'complexity' && (
-                        <div className="space-y-8">
-                            <div className="text-center max-w-2xl mx-auto mb-8">
-                                <h2 className="text-3xl font-bold mb-4">Time Complexity Overview</h2>
-                                <p className="text-gray-300">Understand the performance implications of different data structures and algorithms</p>
-                            </div>
-                            <div className="bg-gray-900/50 rounded-xl p-4 md:p-6 border border-indigo-500/20">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr className="bg-indigo-900/30">
-                                                <th className="p-4 border-b border-indigo-500/20 rounded-tl-lg">Operation</th>
-                                                <th className="p-4 border-b border-indigo-500/20">Best Case</th>
-                                                <th className="p-4 border-b border-indigo-500/20">Average Case</th>
-                                                <th className="p-4 border-b border-indigo-500/20 rounded-tr-lg">Worst Case</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {complexityData.map((item, index) => (
-                                                <tr
-                                                    key={item.name}
-                                                    className={`hover:bg-indigo-900/20 transition-colors ${index === complexityData.length - 1 ? 'last-row' : ''
-                                                        }`}
-                                                >
-                                                    <td className={`p-4 border-b border-indigo-500/10 font-medium ${index === complexityData.length - 1 ? 'rounded-bl-lg' : ''
-                                                        }`}>
-                                                        {item.name}
-                                                    </td>
-                                                    <td className={`p-4 border-b border-indigo-500/10 ${item.best === 'O(1)' ? 'text-green-400' :
-                                                        item.best.includes('log') ? 'text-blue-400' : 'text-gray-300'
-                                                        }`}>
-                                                        {item.best}
-                                                    </td>
-                                                    <td className={`p-4 border-b border-indigo-500/10 ${item.average === 'O(1)' ? 'text-green-400' :
-                                                        item.average.includes('log') ? 'text-blue-400' :
-                                                            item.average.includes('n') ? 'text-orange-400' : 'text-gray-300'
-                                                        }`}>
-                                                        {item.average}
-                                                    </td>
-                                                    <td className={`p-4 border-b border-indigo-500/10 ${index === complexityData.length - 1 ? 'rounded-br-lg' : ''} ${item.worst === 'O(1)' ? 'text-green-400' :
-                                                        item.worst.includes('log') ? 'text-blue-400' :
-                                                            item.worst.includes('n') ? 'text-orange-400' : 'text-gray-300'
-                                                        }`}>
-                                                        {item.worst}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                {/* Complexity Table */}
+                {activeTab === 'complexity' && (
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
+                        <div className="text-center max-w-3xl mx-auto mb-8">
+                            <h2 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-teal-400">
+                                Time Complexity Analysis
+                            </h2>
+                            <p className="text-gray-300 font-light">Explore the best, average, and worst-case scenarios for common data structure operations.</p>
+                        </div>
+                        <div className="bg-gray-800/70 rounded-xl p-4 md:p-6 border border-cyan-500/20 backdrop-blur-md shadow-lg">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-cyan-900/30">
+                                            <th className="p-4 border-b border-cyan-500/20 rounded-tl-lg font-semibold text-gray-200">Operation</th>
+                                            <th className="p-4 border-b border-cyan-500/20 font-semibold text-green-300">Best Case</th>
+                                            <th className="p-4 border-b border-cyan-500/20 font-semibold text-yellow-300">Average Case</th>
+                                            <th className="p-4 border-b border-cyan-500/20 rounded-tr-lg font-semibold text-red-300">Worst Case</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {complexityData.map((item, index) => (
+                                            <motion.tr
+                                                key={item.name}
+                                                variants={itemVariants}
+                                                className="hover:bg-cyan-900/20 transition-colors"
+                                            >
+                                                <td className="p-4 border-b border-cyan-500/10 font-medium">{item.name}</td>
+                                                <td className="p-4 border-b border-cyan-500/10">{item.best}</td>
+                                                <td className="p-4 border-b border-cyan-500/10">{item.average}</td>
+                                                <td className="p-4 border-b border-cyan-500/10">{item.worst}</td>
+                                            </motion.tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                    )}
-                </div>
-                <footer className="bg-gray-800 text-gray-400 text-center p-6 mt-auto">
-                    © {new Date().getFullYear()} Data Structures and Algorithms. All rights reserved.
-                </footer>
+                    </motion.div>
+                )}
             </div>
 
-
-        </>
+            {/* Footer */}
+            <footer className="bg-gray-800/90 text-gray-400 text-center p-6 mt-auto border-t border-cyan-500/20 backdrop-blur-sm">
+                © {new Date().getFullYear()} Data Structures & Applications. All rights reserved.
+            </footer>
+        </div>
     );
 }

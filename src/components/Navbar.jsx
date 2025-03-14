@@ -116,7 +116,7 @@ const Navbar = () => {
                             </svg>
                         </motion.div>
                         <span className="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-indigo-300 to-blue-400">
-                            AlgoViz
+                            AlgoVizTool
                         </span>
                     </Link>
                 </motion.div>
