@@ -6,7 +6,7 @@ import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 
-const BinarySearchVisualizer = () => {
+const TernarySearchVisualizer = () => {
     const [array, setArray] = useState([]);
     const [arraySize, setArraySize] = useState(15);
     const [searching, setSearching] = useState(false);
@@ -15,7 +15,8 @@ const BinarySearchVisualizer = () => {
     const [target, setTarget] = useState(null);
     const [low, setLow] = useState(-1);
     const [high, setHigh] = useState(-1);
-    const [mid, setMid] = useState(-1);
+    const [mid1, setMid1] = useState(-1); // First mid point
+    const [mid2, setMid2] = useState(-1); // Second mid point
     const [foundIndex, setFoundIndex] = useState(-1);
     const [comparisons, setComparisons] = useState(0);
     const [customInput, setCustomInput] = useState('');
@@ -30,7 +31,7 @@ const BinarySearchVisualizer = () => {
     // Generate random sorted array
     const generateRandomArray = () => {
         const newArray = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 96) + 5); // 5-100
-        newArray.sort((a, b) => a - b); // Binary search requires sorted array
+        newArray.sort((a, b) => a - b); // Ternary search requires sorted array
         setArray(newArray);
         setTarget(newArray[Math.floor(Math.random() * newArray.length)]); // Random target from array
         resetState();
@@ -61,7 +62,7 @@ const BinarySearchVisualizer = () => {
                 return;
             }
 
-            parsedArray.sort((a, b) => a - b); // Ensure sorted for binary search
+            parsedArray.sort((a, b) => a - b); // Ensure sorted for ternary search
             setArray(parsedArray);
             setArraySize(parsedArray.length);
             setTarget(targetNum);
@@ -80,7 +81,8 @@ const BinarySearchVisualizer = () => {
         setComparisons(0);
         setLow(-1);
         setHigh(-1);
-        setMid(-1);
+        setMid1(-1);
+        setMid2(-1);
         setFoundIndex(-1);
     };
 
@@ -101,8 +103,8 @@ const BinarySearchVisualizer = () => {
         return () => document.removeEventListener('mousedown', () => { });
     }, [showInputModal]);
 
-    // Binary Search implementation
-    const binarySearch = async () => {
+    // Ternary Search implementation
+    const ternarySearch = async () => {
         let tempArray = [...array];
         let l = 0;
         let h = tempArray.length - 1;
@@ -110,24 +112,36 @@ const BinarySearchVisualizer = () => {
         searchingRef.current = true;
 
         while (l <= h && searchingRef.current) {
-            const m = Math.floor((l + h) / 2);
             setLow(l);
             setHigh(h);
-            setMid(m);
-            setComparisons(prev => prev + 1);
+
+            const mid1 = Math.floor(l + (h - l) / 3);
+            const mid2 = Math.floor(h - (h - l) / 3);
+            setMid1(mid1);
+            setMid2(mid2);
+            setComparisons(prev => prev + 2); // Two comparisons per iteration
 
             await new Promise(resolve => (timeoutRef.current = setTimeout(resolve, 1000 - speed * 9)));
 
-            if (tempArray[m] === target) {
-                setFoundIndex(m);
+            if (tempArray[mid1] === target) {
+                setFoundIndex(mid1);
                 setCompleted(true);
                 setSearching(false);
                 searchingRef.current = false;
                 return;
-            } else if (tempArray[m] < target) {
-                l = m + 1;
+            } else if (tempArray[mid2] === target) {
+                setFoundIndex(mid2);
+                setCompleted(true);
+                setSearching(false);
+                searchingRef.current = false;
+                return;
+            } else if (target < tempArray[mid1]) {
+                h = mid1 - 1;
+            } else if (target > tempArray[mid2]) {
+                l = mid2 + 1;
             } else {
-                h = m - 1;
+                l = mid1 + 1;
+                h = mid2 - 1;
             }
         }
 
@@ -137,12 +151,13 @@ const BinarySearchVisualizer = () => {
             setSearching(false);
             setLow(-1);
             setHigh(-1);
-            setMid(-1);
+            setMid1(-1);
+            setMid2(-1);
         }
     };
 
     const handleStart = () => {
-        if (!searching && !completed && target !== null) binarySearch();
+        if (!searching && !completed && target !== null) ternarySearch();
     };
 
     const handlePause = () => {
@@ -168,7 +183,7 @@ const BinarySearchVisualizer = () => {
     // Bar styling
     const getBarColor = index => {
         if (completed && foundIndex === index) return 'bg-gradient-to-t from-emerald-600 to-emerald-400 shadow-emerald-500/40';
-        if (index === mid) return 'bg-gradient-to-t from-yellow-600 to-yellow-400 shadow-yellow-500/40';
+        if (index === mid1 || index === mid2) return 'bg-gradient-to-t from-yellow-600 to-yellow-400 shadow-yellow-500/40';
         if (index === low || index === high) return 'bg-gradient-to-t from-cyan-600 to-cyan-400 shadow-cyan-500/40';
         return 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-purple-500/40';
     };
@@ -191,7 +206,7 @@ const BinarySearchVisualizer = () => {
                     className="w-full max-w-7xl bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-purple-600/40 overflow-hidden"
                 >
                     <h1 className="text-5xl font-extrabold mb-10 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-300 to-pink-400">
-                        Binary Search Visualizer
+                        Ternary Search Visualizer
                     </h1>
 
                     {/* Controls */}
@@ -280,8 +295,8 @@ const BinarySearchVisualizer = () => {
                                 className={`${getBarColor(index)} rounded-t-xl shadow-lg relative flex items-center justify-center transition-all duration-300`}
                                 style={{ height: getBarHeight(value), width: getBarWidth(), maxWidth: '50px', minWidth: '8px' }}
                                 animate={{
-                                    y: [low, high, mid].includes(index) ? -15 : 0,
-                                    scale: [low, high, mid].includes(index) ? 1.05 : 1,
+                                    y: [low, high, mid1, mid2].includes(index) ? -15 : 0,
+                                    scale: [low, high, mid1, mid2].includes(index) ? 1.05 : 1,
                                     transition: { duration: 0.3 },
                                 }}
                             >
@@ -291,7 +306,8 @@ const BinarySearchVisualizer = () => {
                                     </span>
                                 )}
                                 {index === low && <span className="absolute -top-8 text-cyan-400 text-xs">Low</span>}
-                                {index === mid && <span className="absolute -top-8 text-yellow-400 text-xs">Mid</span>}
+                                {index === mid1 && <span className="absolute -top-8 text-yellow-400 text-xs">Mid1</span>}
+                                {index === mid2 && <span className="absolute -top-8 text-yellow-400 text-xs">Mid2</span>}
                                 {index === high && <span className="absolute -top-8 text-cyan-400 text-xs">High</span>}
                             </motion.div>
                         ))}
@@ -303,34 +319,40 @@ const BinarySearchVisualizer = () => {
                         animate={{ opacity: 1 }}
                         className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-purple-600/40"
                     >
-                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Binary Search Explained</h2>
+                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Ternary Search Explained</h2>
                         <p className="text-gray-200 mb-6">
-                            Binary Search is an efficient algorithm for finding a target value in a sorted array. It repeatedly divides the search interval in half, comparing the target with the middle element and narrowing the range accordingly.
+                            Ternary Search divides the search space into three parts by calculating two midpoints (mid1 and mid2). It compares the target with these points to narrow down the search to one of three segments, repeating until the target is found or the space is exhausted.
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <h3 className="text-xl font-semibold text-purple-300 mb-2">Key Details</h3>
                                 <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(log n)</li>
+                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(log₃ n)</li>
                                     <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1) iterative, O(log n) recursive</li>
                                     <li><span className="font-semibold text-purple-400">Prerequisite:</span> Array must be sorted</li>
-                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Static sorted datasets</li>
+                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Sorted arrays or unimodal functions</li>
                                 </ul>
                             </div>
                             <div>
                                 <h3 className="text-xl font-semibold text-purple-300 mb-2">Pseudocode</h3>
                                 <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
-                                    {`binarySearch(arr, target):
+                                    {`ternarySearch(arr, target):
     low = 0
     high = arr.length - 1
     while low <= high:
-        mid = (low + high) / 2
-        if arr[mid] == target:
-            return mid
-        else if arr[mid] < target:
-            low = mid + 1
+        mid1 = low + (high - low) / 3
+        mid2 = high - (high - low) / 3
+        if arr[mid1] == target:
+            return mid1
+        if arr[mid2] == target:
+            return mid2
+        if target < arr[mid1]:
+            high = mid1 - 1
+        else if target > arr[mid2]:
+            low = mid2 + 1
         else:
-            high = mid - 1
+            low = mid1 + 1
+            high = mid2 - 1
     return -1 // Not found`}
                                 </pre>
                             </div>
@@ -399,4 +421,4 @@ const BinarySearchVisualizer = () => {
     );
 };
 
-export default BinarySearchVisualizer;
+export default TernarySearchVisualizer;

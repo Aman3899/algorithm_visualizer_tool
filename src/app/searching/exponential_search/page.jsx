@@ -6,16 +6,17 @@ import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 
-const BinarySearchVisualizer = () => {
+const ExponentialSearchVisualizer = () => {
     const [array, setArray] = useState([]);
     const [arraySize, setArraySize] = useState(15);
     const [searching, setSearching] = useState(false);
     const [completed, setCompleted] = useState(false);
     const [speed, setSpeed] = useState(50);
     const [target, setTarget] = useState(null);
+    const [bound, setBound] = useState(-1); // Current exponential bound
     const [low, setLow] = useState(-1);
     const [high, setHigh] = useState(-1);
-    const [mid, setMid] = useState(-1);
+    const [mid, setMid] = useState(-1); // For binary search phase
     const [foundIndex, setFoundIndex] = useState(-1);
     const [comparisons, setComparisons] = useState(0);
     const [customInput, setCustomInput] = useState('');
@@ -30,7 +31,7 @@ const BinarySearchVisualizer = () => {
     // Generate random sorted array
     const generateRandomArray = () => {
         const newArray = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 96) + 5); // 5-100
-        newArray.sort((a, b) => a - b); // Binary search requires sorted array
+        newArray.sort((a, b) => a - b); // Exponential search requires sorted array
         setArray(newArray);
         setTarget(newArray[Math.floor(Math.random() * newArray.length)]); // Random target from array
         resetState();
@@ -61,7 +62,7 @@ const BinarySearchVisualizer = () => {
                 return;
             }
 
-            parsedArray.sort((a, b) => a - b); // Ensure sorted for binary search
+            parsedArray.sort((a, b) => a - b); // Ensure sorted for exponential search
             setArray(parsedArray);
             setArraySize(parsedArray.length);
             setTarget(targetNum);
@@ -78,6 +79,7 @@ const BinarySearchVisualizer = () => {
     const resetState = () => {
         setCompleted(false);
         setComparisons(0);
+        setBound(-1);
         setLow(-1);
         setHigh(-1);
         setMid(-1);
@@ -101,21 +103,42 @@ const BinarySearchVisualizer = () => {
         return () => document.removeEventListener('mousedown', () => { });
     }, [showInputModal]);
 
-    // Binary Search implementation
-    const binarySearch = async () => {
+    // Exponential Search implementation
+    const exponentialSearch = async () => {
         let tempArray = [...array];
-        let l = 0;
-        let h = tempArray.length - 1;
         setSearching(true);
         searchingRef.current = true;
 
+        const n = tempArray.length;
+        if (n === 0) return;
+
+        // Exponential phase: Find the range
+        let i = 1;
+        if (tempArray[0] === target) {
+            setFoundIndex(0);
+            setCompleted(true);
+            setSearching(false);
+            searchingRef.current = false;
+            return;
+        }
+
+        while (i < n && tempArray[i] <= target && searchingRef.current) {
+            setBound(i);
+            setComparisons(prev => prev + 1);
+            await new Promise(resolve => (timeoutRef.current = setTimeout(resolve, 1000 - speed * 9)));
+            i *= 2; // Double the bound
+        }
+
+        // Binary search phase within the found range
+        let l = Math.floor(i / 2);
+        let h = Math.min(i, n - 1);
+        setLow(l);
+        setHigh(h);
+
         while (l <= h && searchingRef.current) {
             const m = Math.floor((l + h) / 2);
-            setLow(l);
-            setHigh(h);
             setMid(m);
             setComparisons(prev => prev + 1);
-
             await new Promise(resolve => (timeoutRef.current = setTimeout(resolve, 1000 - speed * 9)));
 
             if (tempArray[m] === target) {
@@ -135,6 +158,7 @@ const BinarySearchVisualizer = () => {
             setFoundIndex(-1); // Not found
             setCompleted(true);
             setSearching(false);
+            setBound(-1);
             setLow(-1);
             setHigh(-1);
             setMid(-1);
@@ -142,7 +166,7 @@ const BinarySearchVisualizer = () => {
     };
 
     const handleStart = () => {
-        if (!searching && !completed && target !== null) binarySearch();
+        if (!searching && !completed && target !== null) exponentialSearch();
     };
 
     const handlePause = () => {
@@ -169,7 +193,8 @@ const BinarySearchVisualizer = () => {
     const getBarColor = index => {
         if (completed && foundIndex === index) return 'bg-gradient-to-t from-emerald-600 to-emerald-400 shadow-emerald-500/40';
         if (index === mid) return 'bg-gradient-to-t from-yellow-600 to-yellow-400 shadow-yellow-500/40';
-        if (index === low || index === high) return 'bg-gradient-to-t from-cyan-600 to-cyan-400 shadow-cyan-500/40';
+        if (index === bound) return 'bg-gradient-to-t from-cyan-600 to-cyan-400 shadow-cyan-500/40';
+        if (index === low || index === high) return 'bg-gradient-to-t from-teal-600 to-teal-400 shadow-teal-500/40';
         return 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-purple-500/40';
     };
 
@@ -191,7 +216,7 @@ const BinarySearchVisualizer = () => {
                     className="w-full max-w-7xl bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-purple-600/40 overflow-hidden"
                 >
                     <h1 className="text-5xl font-extrabold mb-10 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-300 to-pink-400">
-                        Binary Search Visualizer
+                        Exponential Search Visualizer
                     </h1>
 
                     {/* Controls */}
@@ -280,8 +305,8 @@ const BinarySearchVisualizer = () => {
                                 className={`${getBarColor(index)} rounded-t-xl shadow-lg relative flex items-center justify-center transition-all duration-300`}
                                 style={{ height: getBarHeight(value), width: getBarWidth(), maxWidth: '50px', minWidth: '8px' }}
                                 animate={{
-                                    y: [low, high, mid].includes(index) ? -15 : 0,
-                                    scale: [low, high, mid].includes(index) ? 1.05 : 1,
+                                    y: [bound, low, high, mid].includes(index) ? -15 : 0,
+                                    scale: [bound, low, high, mid].includes(index) ? 1.05 : 1,
                                     transition: { duration: 0.3 },
                                 }}
                             >
@@ -290,9 +315,10 @@ const BinarySearchVisualizer = () => {
                                         {value}
                                     </span>
                                 )}
-                                {index === low && <span className="absolute -top-8 text-cyan-400 text-xs">Low</span>}
+                                {index === bound && <span className="absolute -top-8 text-cyan-400 text-xs">Bound</span>}
+                                {index === low && <span className="absolute -top-8 text-teal-400 text-xs">Low</span>}
                                 {index === mid && <span className="absolute -top-8 text-yellow-400 text-xs">Mid</span>}
-                                {index === high && <span className="absolute -top-8 text-cyan-400 text-xs">High</span>}
+                                {index === high && <span className="absolute -top-8 text-teal-400 text-xs">High</span>}
                             </motion.div>
                         ))}
                     </div>
@@ -303,26 +329,32 @@ const BinarySearchVisualizer = () => {
                         animate={{ opacity: 1 }}
                         className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-purple-600/40"
                     >
-                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Binary Search Explained</h2>
+                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Exponential Search Explained</h2>
                         <p className="text-gray-200 mb-6">
-                            Binary Search is an efficient algorithm for finding a target value in a sorted array. It repeatedly divides the search interval in half, comparing the target with the middle element and narrowing the range accordingly.
+                            Exponential Search finds a range where the target might exist by exponentially increasing the index (doubling it) until it overshoots, then performs a binary search within that range. It’s particularly useful for unbounded searches or when the target is near the start.
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <h3 className="text-xl font-semibold text-purple-300 mb-2">Key Details</h3>
                                 <ul className="text-gray-200 list-disc list-inside">
                                     <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(log n)</li>
-                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1) iterative, O(log n) recursive</li>
+                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1)</li>
                                     <li><span className="font-semibold text-purple-400">Prerequisite:</span> Array must be sorted</li>
-                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Static sorted datasets</li>
+                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Large sorted arrays, unbounded searches</li>
                                 </ul>
                             </div>
                             <div>
                                 <h3 className="text-xl font-semibold text-purple-300 mb-2">Pseudocode</h3>
                                 <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
-                                    {`binarySearch(arr, target):
-    low = 0
-    high = arr.length - 1
+                                    {`exponentialSearch(arr, target):
+    if arr[0] == target:
+        return 0
+    i = 1
+    while i < arr.length AND arr[i] <= target:
+        i = i * 2
+    return binarySearch(arr, target, i/2, min(i, arr.length-1))
+
+binarySearch(arr, target, low, high):
     while low <= high:
         mid = (low + high) / 2
         if arr[mid] == target:
@@ -399,4 +431,4 @@ const BinarySearchVisualizer = () => {
     );
 };
 
-export default BinarySearchVisualizer;
+export default ExponentialSearchVisualizer;

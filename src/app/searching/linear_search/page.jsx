@@ -6,16 +6,14 @@ import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 
-const BinarySearchVisualizer = () => {
+const LinearSearchVisualizer = () => {
     const [array, setArray] = useState([]);
     const [arraySize, setArraySize] = useState(15);
     const [searching, setSearching] = useState(false);
     const [completed, setCompleted] = useState(false);
     const [speed, setSpeed] = useState(50);
     const [target, setTarget] = useState(null);
-    const [low, setLow] = useState(-1);
-    const [high, setHigh] = useState(-1);
-    const [mid, setMid] = useState(-1);
+    const [currentIndex, setCurrentIndex] = useState(-1);
     const [foundIndex, setFoundIndex] = useState(-1);
     const [comparisons, setComparisons] = useState(0);
     const [customInput, setCustomInput] = useState('');
@@ -27,10 +25,9 @@ const BinarySearchVisualizer = () => {
     const searchingRef = useRef(false);
     const modalRef = useRef(null);
 
-    // Generate random sorted array
+    // Generate random array
     const generateRandomArray = () => {
         const newArray = Array.from({ length: arraySize }, () => Math.floor(Math.random() * 96) + 5); // 5-100
-        newArray.sort((a, b) => a - b); // Binary search requires sorted array
         setArray(newArray);
         setTarget(newArray[Math.floor(Math.random() * newArray.length)]); // Random target from array
         resetState();
@@ -61,7 +58,6 @@ const BinarySearchVisualizer = () => {
                 return;
             }
 
-            parsedArray.sort((a, b) => a - b); // Ensure sorted for binary search
             setArray(parsedArray);
             setArraySize(parsedArray.length);
             setTarget(targetNum);
@@ -78,9 +74,7 @@ const BinarySearchVisualizer = () => {
     const resetState = () => {
         setCompleted(false);
         setComparisons(0);
-        setLow(-1);
-        setHigh(-1);
-        setMid(-1);
+        setCurrentIndex(-1);
         setFoundIndex(-1);
     };
 
@@ -101,33 +95,23 @@ const BinarySearchVisualizer = () => {
         return () => document.removeEventListener('mousedown', () => { });
     }, [showInputModal]);
 
-    // Binary Search implementation
-    const binarySearch = async () => {
+    // Linear Search implementation
+    const linearSearch = async () => {
         let tempArray = [...array];
-        let l = 0;
-        let h = tempArray.length - 1;
         setSearching(true);
         searchingRef.current = true;
 
-        while (l <= h && searchingRef.current) {
-            const m = Math.floor((l + h) / 2);
-            setLow(l);
-            setHigh(h);
-            setMid(m);
+        for (let i = 0; i < tempArray.length && searchingRef.current; i++) {
+            setCurrentIndex(i);
             setComparisons(prev => prev + 1);
-
             await new Promise(resolve => (timeoutRef.current = setTimeout(resolve, 1000 - speed * 9)));
 
-            if (tempArray[m] === target) {
-                setFoundIndex(m);
+            if (tempArray[i] === target) {
+                setFoundIndex(i);
                 setCompleted(true);
                 setSearching(false);
                 searchingRef.current = false;
                 return;
-            } else if (tempArray[m] < target) {
-                l = m + 1;
-            } else {
-                h = m - 1;
             }
         }
 
@@ -135,14 +119,12 @@ const BinarySearchVisualizer = () => {
             setFoundIndex(-1); // Not found
             setCompleted(true);
             setSearching(false);
-            setLow(-1);
-            setHigh(-1);
-            setMid(-1);
+            setCurrentIndex(-1);
         }
     };
 
     const handleStart = () => {
-        if (!searching && !completed && target !== null) binarySearch();
+        if (!searching && !completed && target !== null) linearSearch();
     };
 
     const handlePause = () => {
@@ -168,8 +150,7 @@ const BinarySearchVisualizer = () => {
     // Bar styling
     const getBarColor = index => {
         if (completed && foundIndex === index) return 'bg-gradient-to-t from-emerald-600 to-emerald-400 shadow-emerald-500/40';
-        if (index === mid) return 'bg-gradient-to-t from-yellow-600 to-yellow-400 shadow-yellow-500/40';
-        if (index === low || index === high) return 'bg-gradient-to-t from-cyan-600 to-cyan-400 shadow-cyan-500/40';
+        if (index === currentIndex) return 'bg-gradient-to-t from-yellow-600 to-yellow-400 shadow-yellow-500/40';
         return 'bg-gradient-to-t from-purple-600 to-purple-400 shadow-purple-500/40';
     };
 
@@ -191,7 +172,7 @@ const BinarySearchVisualizer = () => {
                     className="w-full max-w-7xl bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-purple-600/40 overflow-hidden"
                 >
                     <h1 className="text-5xl font-extrabold mb-10 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-300 to-pink-400">
-                        Binary Search Visualizer
+                        Linear Search Visualizer
                     </h1>
 
                     {/* Controls */}
@@ -280,8 +261,8 @@ const BinarySearchVisualizer = () => {
                                 className={`${getBarColor(index)} rounded-t-xl shadow-lg relative flex items-center justify-center transition-all duration-300`}
                                 style={{ height: getBarHeight(value), width: getBarWidth(), maxWidth: '50px', minWidth: '8px' }}
                                 animate={{
-                                    y: [low, high, mid].includes(index) ? -15 : 0,
-                                    scale: [low, high, mid].includes(index) ? 1.05 : 1,
+                                    y: currentIndex === index ? -15 : 0,
+                                    scale: currentIndex === index ? 1.05 : 1,
                                     transition: { duration: 0.3 },
                                 }}
                             >
@@ -290,9 +271,7 @@ const BinarySearchVisualizer = () => {
                                         {value}
                                     </span>
                                 )}
-                                {index === low && <span className="absolute -top-8 text-cyan-400 text-xs">Low</span>}
-                                {index === mid && <span className="absolute -top-8 text-yellow-400 text-xs">Mid</span>}
-                                {index === high && <span className="absolute -top-8 text-cyan-400 text-xs">High</span>}
+                                {index === currentIndex && <span className="absolute -top-8 text-yellow-400 text-xs">Current</span>}
                             </motion.div>
                         ))}
                     </div>
@@ -303,34 +282,27 @@ const BinarySearchVisualizer = () => {
                         animate={{ opacity: 1 }}
                         className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-purple-600/40"
                     >
-                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Binary Search Explained</h2>
+                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Linear Search Explained</h2>
                         <p className="text-gray-200 mb-6">
-                            Binary Search is an efficient algorithm for finding a target value in a sorted array. It repeatedly divides the search interval in half, comparing the target with the middle element and narrowing the range accordingly.
+                            Linear Search is a simple algorithm that sequentially checks each element in an array until it finds the target value or exhausts the list. It’s straightforward but inefficient for large datasets.
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <h3 className="text-xl font-semibold text-purple-300 mb-2">Key Details</h3>
                                 <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(log n)</li>
-                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1) iterative, O(log n) recursive</li>
-                                    <li><span className="font-semibold text-purple-400">Prerequisite:</span> Array must be sorted</li>
-                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Static sorted datasets</li>
+                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(n)</li>
+                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1)</li>
+                                    <li><span className="font-semibold text-purple-400">Prerequisite:</span> None (works on unsorted data)</li>
+                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Small or unsorted datasets</li>
                                 </ul>
                             </div>
                             <div>
                                 <h3 className="text-xl font-semibold text-purple-300 mb-2">Pseudocode</h3>
                                 <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
-                                    {`binarySearch(arr, target):
-    low = 0
-    high = arr.length - 1
-    while low <= high:
-        mid = (low + high) / 2
-        if arr[mid] == target:
-            return mid
-        else if arr[mid] < target:
-            low = mid + 1
-        else:
-            high = mid - 1
+                                    {`linearSearch(arr, target):
+    for i = 0 to arr.length - 1:
+        if arr[i] == target:
+            return i
     return -1 // Not found`}
                                 </pre>
                             </div>
@@ -399,4 +371,4 @@ const BinarySearchVisualizer = () => {
     );
 };
 
-export default BinarySearchVisualizer;
+export default LinearSearchVisualizer;
