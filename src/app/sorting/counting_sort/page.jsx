@@ -5,6 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaEdit } from 'react-ico
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import CountingSortExplanation from '@/components/sorting/counting_explanation';
 
 const CountingSortVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -314,37 +315,7 @@ const CountingSortVisualizer = () => {
                         </motion.div>
                     )}
 
-                    {/* Explanation */}
-                    <motion.div
-                        className="mt-8 bg-gray-700/70 p-6 rounded-3xl border border-indigo-600/30"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                    >
-                        <h2 className="text-2xl font-bold mb-4 text-indigo-400">Counting Sort Explained</h2>
-                        <p className="text-gray-300 mb-4">
-                            Counting Sort is a stable, non-comparative sorting algorithm that counts occurrences of each value and places them in sorted order. It’s efficient when the range (k) is close to the number of elements (n).
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <h3 className="text-lg font-semibold text-indigo-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-300 list-disc list-inside">
-                                    <li>Time Complexity: O(n + k)</li>
-                                    <li>Space Complexity: O(n + k)</li>
-                                    <li>Stable: Yes</li>
-                                    <li>Best for: Small integer ranges</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-semibold text-indigo-300 mb-2">Steps</h3>
-                                <ol className="text-gray-300 list-decimal list-inside">
-                                    <li>Count occurrences of each value</li>
-                                    <li>Compute cumulative counts</li>
-                                    <li>Place elements in sorted positions</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </motion.div>
+                    <CountingSortExplanation />
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>

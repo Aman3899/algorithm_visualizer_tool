@@ -5,6 +5,8 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaEdit } from 'react-ico
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import BubbleSortExplanation from '@/components/sorting/bubble_explanation';
+import MergeSortExplanation from '@/components/sorting/merge_explanation';
 
 const MergeSortVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -308,60 +310,7 @@ const MergeSortVisualizer = () => {
                         </div>
                     )}
 
-                    {/* Explanation */}
-                    <div className="mt-10 bg-gray-700/70 p-8 rounded-3xl border border-indigo-600/40">
-                        <h2 className="text-3xl font-bold mb-6 text-indigo-400">Merge Sort Explained</h2>
-                        <p className="text-gray-200 mb-6">
-                            Merge Sort uses a divide-and-conquer strategy, splitting the array into halves recursively until single elements remain, then merging them back in sorted order.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-xl font-semibold text-indigo-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li>
-                                        <span className="font-semibold">Time Complexity:</span> O(n log n)
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold">Space Complexity:</span> O(n)
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold">Stability:</span> Stable
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold">Adaptive:</span> No
-                                    </li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold text-indigo-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200">
-                                    {`mergeSort(arr, start, end):
-    if start >= end:
-        return [arr[start]]
-    
-    mid = (start + end) / 2
-    left = mergeSort(arr, start, mid)
-    right = mergeSort(arr, mid + 1, end)
-    
-    return merge(left, right)
-
-merge(left, right):
-    result = []
-    i = j = 0
-    while i < len(left) and j < len(right):
-        if left[i] <= right[j]:
-            result.append(left[i])
-            i++
-        else:
-            result.append(right[j])
-            j++
-    result += left[i:]
-    result += right[j:]
-    return result`}
-                                </pre>
-                            </div>
-                        </div>
-                    </div>
+                    <MergeSortExplanation />
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>

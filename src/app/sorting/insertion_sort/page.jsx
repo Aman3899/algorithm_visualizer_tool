@@ -5,6 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaEdit } from 'react-ico
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import InsertionSortExplanation from '@/components/sorting/insertion_explanation';
 
 const InsertionSortVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -323,43 +324,7 @@ const InsertionSortVisualizer = () => {
                         ))}
                     </div>
 
-                    {/* Explanation */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-6 sm:mt-10 bg-gray-700/70 p-4 sm:p-8 rounded-3xl shadow-lg border border-indigo-600/40"
-                    >
-                        <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-indigo-400">Insertion Sort Explained</h2>
-                        <p className="text-gray-200 mb-4">
-                            Insertion Sort builds the final sorted array one item at a time by repeatedly inserting the next element in its correct position within the already sorted portion of the array.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-lg sm:text-xl font-semibold text-indigo-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-indigo-400">Time Complexity:</span> O(n²) worst/average, O(n) best</li>
-                                    <li><span className="font-semibold text-indigo-400">Space Complexity:</span> O(1)</li>
-                                    <li><span className="font-semibold text-indigo-400">Stability:</span> Stable</li>
-                                    <li><span className="font-semibold text-indigo-400">Adaptive:</span> Yes</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-lg sm:text-xl font-semibold text-indigo-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-3 sm:p-4 rounded-lg text-xs sm:text-sm text-gray-200 overflow-x-auto">
-                                    {`insertionSort(arr):
-    n = arr.length
-    for i = 1 to n-1:
-        key = arr[i]
-        j = i - 1
-        while j >= 0 and arr[j] > key:
-            arr[j+1] = arr[j]
-            j = j - 1
-        arr[j+1] = key
-    return arr`}
-                                </pre>
-                            </div>
-                        </div>
-                    </motion.div>
+                    <InsertionSortExplanation />
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>

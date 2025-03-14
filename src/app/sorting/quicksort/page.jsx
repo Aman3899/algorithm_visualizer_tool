@@ -5,6 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaEdit } from 'react-ico
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import QuickSortExplanation from '@/components/sorting/quick_explanation';
 
 const QuickSortVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -322,52 +323,7 @@ const QuickSortVisualizer = () => {
                         </div>
                     )}
 
-                    {/* Explanation */}
-                    <div className="mt-10 bg-gray-700/70 p-8 rounded-3xl border border-indigo-600/40">
-                        <h2 className="text-3xl font-bold mb-6 text-indigo-400">QuickSort Explained</h2>
-                        <p className="text-gray-200 mb-6">
-                            QuickSort is a divide-and-conquer algorithm that selects a pivot element, partitions the array around it, and recursively sorts the subarrays.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-xl font-semibold text-indigo-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li>
-                                        <span className="font-semibold">Time Complexity:</span> O(n log n) average, O(n²) worst
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold">Space Complexity:</span> O(log n)
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold">Stability:</span> Not Stable
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold">Adaptive:</span> No
-                                    </li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold text-indigo-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200">
-                                    {`quickSort(arr, low, high):
-    if low < high:
-        pivotIdx = partition(arr, low, high)
-        quickSort(arr, low, pivotIdx - 1)
-        quickSort(arr, pivotIdx + 1, high)
-
-partition(arr, low, high):
-    pivot = arr[high]
-    i = low - 1
-    for j = low to high - 1:
-        if arr[j] <= pivot:
-            i++
-            swap(arr[i], arr[j])
-    swap(arr[i + 1], arr[high])
-    return i + 1`}
-                                </pre>
-                            </div>
-                        </div>
-                    </div>
+                    <QuickSortExplanation />
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>

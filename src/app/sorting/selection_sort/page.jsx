@@ -5,6 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaEdit } from 'react-ico
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import SelectionSortExplanation from '@/components/sorting/selection_explanation';
 
 const SelectionSortVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -323,43 +324,7 @@ const SelectionSortVisualizer = () => {
                         ))}
                     </div>
 
-                    {/* Explanation */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-6 sm:mt-10 bg-gray-700/70 p-4 sm:p-8 rounded-3xl shadow-lg border border-indigo-600/40"
-                    >
-                        <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-indigo-400">Selection Sort Explained</h2>
-                        <p className="text-gray-200 mb-4">
-                            Selection Sort repeatedly finds the minimum element from the unsorted part of the array and puts it at the beginning.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-lg sm:text-xl font-semibold text-indigo-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-indigo-400">Time Complexity:</span> O(n²)</li>
-                                    <li><span className="font-semibold text-indigo-400">Space Complexity:</span> O(1)</li>
-                                    <li><span className="font-semibold text-indigo-400">Stability:</span> Unstable</li>
-                                    <li><span className="font-semibold text-indigo-400">Adaptive:</span> No</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-lg sm:text-xl font-semibold text-indigo-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-3 sm:p-4 rounded-lg text-xs sm:text-sm text-gray-200 overflow-x-auto">
-                                    {`selectionSort(arr):
-    n = arr.length
-    for i = 0 to n-2:
-        min_idx = i
-        for j = i+1 to n-1:
-            if arr[j] < arr[min_idx]:
-                min_idx = j
-        if min_idx != i:
-            swap(arr[i], arr[min_idx])
-    return arr`}
-                                </pre>
-                            </div>
-                        </div>
-                    </motion.div>
+                    <SelectionSortExplanation />
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>

@@ -5,6 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaEdit } from 'react-ico
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import BubbleSortExplanation from '@/components/sorting/bubble_explanation';
 
 
 const BubbleSortVisualizer = () => {
@@ -315,44 +316,7 @@ const BubbleSortVisualizer = () => {
                         ))}
                     </div>
 
-                    {/* Explanation */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-6 sm:mt-10 bg-gray-700/70 p-4 sm:p-8 rounded-3xl shadow-lg border border-indigo-600/40"
-                    >
-                        <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-indigo-400">Bubble Sort Explained</h2>
-                        <p className="text-gray-200 mb-4">
-                            Bubble Sort iteratively compares and swaps adjacent elements, pushing larger values to the end of the array in each pass until fully sorted.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-lg sm:text-xl font-semibold text-indigo-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-indigo-400">Time Complexity:</span> O(n²) worst/average, O(n) best</li>
-                                    <li><span className="font-semibold text-indigo-400">Space Complexity:</span> O(1)</li>
-                                    <li><span className="font-semibold text-indigo-400">Stability:</span> Stable</li>
-                                    <li><span className="font-semibold text-indigo-400">Adaptive:</span> Yes</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-lg sm:text-xl font-semibold text-indigo-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-3 sm:p-4 rounded-lg text-xs sm:text-sm text-gray-200 overflow-x-auto">
-                                    {`bubbleSort(arr):
-    n = arr.length
-    for i = 0 to n-1:
-        swapped = false
-        for j = 0 to n-i-1:
-            if arr[j] > arr[j+1]:
-                swap(arr[j], arr[j+1])
-                swapped = true
-        if not swapped:
-            break
-    return arr`}
-                                </pre>
-                            </div>
-                        </div>
-                    </motion.div>
+                    <BubbleSortExplanation />
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>
