@@ -332,7 +332,7 @@ const HomePage = () => {
                         </Link>
 
                         {/* Data Structures Card */}
-                        <Link href="/data_structures">
+                        <Link href="/basic_dsa">
                             <motion.div
                                 variants={cardVariants}
                                 initial="hidden"

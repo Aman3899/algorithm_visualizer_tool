@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaEdit } from 'react-icons/fa';
+import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaEdit, FaLink, FaExchangeAlt, FaInfo } from 'react-icons/fa';
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import BucketSortExplanation from '@/components/sorting/bucket_explanation';
 
 const BucketSortVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -21,10 +22,15 @@ const BucketSortVisualizer = () => {
     const [customInput, setCustomInput] = useState('');
     const [showInputModal, setShowInputModal] = useState(false);
     const [inputError, setInputError] = useState('');
+    const [showLinkedList, setShowLinkedList] = useState(false);
+    const [linkedListBuckets, setLinkedListBuckets] = useState([]);
+    const [activeTab, setActiveTab] = useState('explanation');
+    const [showAlgoModal, setShowAlgoModal] = useState(false);
 
     const timeoutRef = useRef(null);
     const sortingRef = useRef(false);
     const modalRef = useRef(null);
+    const algoModalRef = useRef(null);
 
     // Generate random array
     const generateRandomArray = () => {
@@ -72,6 +78,7 @@ const BucketSortVisualizer = () => {
         setSwaps(0);
         setCurrentIndices([-1, -1]);
         setBuckets([]);
+        setLinkedListBuckets([]);
         setBucketIndex(-1);
         setElementInBucketIndex(-1);
     };
@@ -82,18 +89,46 @@ const BucketSortVisualizer = () => {
 
     useEffect(() => {
         if (showInputModal) {
-            document.addEventListener('mousedown', e => {
-                if (modalRef.current && !modalRef.current.contains(e.target)) {
-                    setShowInputModal(false);
-                }
-            });
+            document.addEventListener('mousedown', handleClickOutside);
         }
-        return () => document.removeEventListener('mousedown', () => { });
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [showInputModal]);
+
+    useEffect(() => {
+        if (showAlgoModal) {
+            document.addEventListener('mousedown', handleAlgoModalClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleAlgoModalClickOutside);
+    }, [showAlgoModal]);
+
+    const handleClickOutside = (e) => {
+        if (modalRef.current && !modalRef.current.contains(e.target)) {
+            setShowInputModal(false);
+        }
+    };
+
+    const handleAlgoModalClickOutside = (e) => {
+        if (algoModalRef.current && !algoModalRef.current.contains(e.target)) {
+            setShowAlgoModal(false);
+        }
+    };
 
     useEffect(() => {
         sortingRef.current = sorting;
     }, [sorting]);
+
+    // Create linked list representation of buckets
+    const createLinkedListBuckets = (bucketArray) => {
+        return bucketArray.map(bucket => {
+            if (bucket.length === 0) return [];
+            const linkedList = bucket.map((value, index) => ({
+                value,
+                next: index < bucket.length - 1 ? index + 1 : null,
+                highlighted: false,
+            }));
+            return linkedList;
+        });
+    };
 
     // Bucket Sort implementation
     const bucketSort = async () => {
@@ -104,18 +139,19 @@ const BucketSortVisualizer = () => {
         setSorting(true);
         sortingRef.current = true;
 
-        const numBuckets = Math.min(arraySize, 10); // Limit buckets for visibility
+        const numBuckets = Math.min(arraySize, 10);
         const newBuckets = Array(numBuckets).fill().map(() => []);
 
         // 1. Distribute elements into buckets
         for (let i = 0; i < tempArray.length && sortingRef.current; i++) {
             const value = tempArray[i];
-            const bIdx = Math.floor(value * numBuckets); // Ensure bucket index is within bounds
+            const bIdx = Math.floor(value * numBuckets);
             newBuckets[bIdx].push(value);
 
-            setBuckets([...newBuckets]); // Update buckets state
-            setBucketIndex(bIdx); // Highlight current bucket
-            setCurrentIndices([i]); // Highlight element being placed
+            setBuckets([...newBuckets]);
+            setLinkedListBuckets(createLinkedListBuckets([...newBuckets]));
+            setBucketIndex(bIdx);
+            setCurrentIndices([i]);
             await new Promise(resolve => (timeoutRef.current = setTimeout(resolve, 1000 - speed * 9)));
         }
         setCurrentIndices([-1, -1]);
@@ -133,6 +169,14 @@ const BucketSortVisualizer = () => {
                 while (k >= 0 && bucket[k] > key && sortingRef.current) {
                     setComparisons(++localComparisons);
                     setCurrentIndices([k, k + 1]);
+                    const updatedLinkedListBuckets = [...createLinkedListBuckets([...newBuckets])];
+                    if (updatedLinkedListBuckets[i] && updatedLinkedListBuckets[i][k]) {
+                        updatedLinkedListBuckets[i][k].highlighted = true;
+                    }
+                    if (updatedLinkedListBuckets[i] && updatedLinkedListBuckets[i][k + 1]) {
+                        updatedLinkedListBuckets[i][k + 1].highlighted = true;
+                    }
+                    setLinkedListBuckets(updatedLinkedListBuckets);
                     await new Promise(resolve => (timeoutRef.current = setTimeout(resolve, 1000 - speed * 9)));
 
                     bucket[k + 1] = bucket[k];
@@ -140,11 +184,13 @@ const BucketSortVisualizer = () => {
                     newBuckets[i] = [...bucket];
                     setBuckets([...newBuckets]);
                     setSwaps(++localSwaps);
+                    setLinkedListBuckets(createLinkedListBuckets([...newBuckets]));
                     await new Promise(resolve => (timeoutRef.current = setTimeout(resolve, 1000 - speed * 9)));
                 }
                 bucket[k + 1] = key;
                 newBuckets[i] = [...bucket];
                 setBuckets([...newBuckets]);
+                setLinkedListBuckets(createLinkedListBuckets([...newBuckets]));
             }
             setElementInBucketIndex(-1);
         }
@@ -158,6 +204,11 @@ const BucketSortVisualizer = () => {
                 setArray([...tempArray]);
                 setCurrentIndices([index]);
                 setElementInBucketIndex(j);
+                const updatedLinkedListBuckets = [...createLinkedListBuckets([...newBuckets])];
+                if (updatedLinkedListBuckets[i] && updatedLinkedListBuckets[i][j]) {
+                    updatedLinkedListBuckets[i][j].highlighted = true;
+                }
+                setLinkedListBuckets(updatedLinkedListBuckets);
                 await new Promise(resolve => (timeoutRef.current = setTimeout(resolve, 1000 - speed * 9)));
                 setSwaps(++localSwaps);
                 index++;
@@ -194,15 +245,19 @@ const BucketSortVisualizer = () => {
         generateRandomArray();
     };
 
-    const handleArraySizeChange = newSize => {
+    const handleArraySizeChange = (newSize) => {
         if (!sorting) {
             setArraySize(newSize);
             generateRandomArray();
         }
     };
 
+    const toggleVisualization = () => {
+        setShowLinkedList(!showLinkedList);
+    };
+
     // Bar styling
-    const getBarColor = index => {
+    const getBarColor = (index) => {
         if (completed) return 'bg-gradient-to-t from-emerald-600 to-emerald-400 shadow-emerald-500/40';
         if (currentIndices.includes(index)) {
             return 'bg-gradient-to-t from-cyan-600 to-cyan-400 shadow-cyan-500/40';
@@ -215,10 +270,10 @@ const BucketSortVisualizer = () => {
         return array.length <= 10 ? `${baseWidth * 1.5}%` : array.length <= 20 ? `${baseWidth * 1.2}%` : `${baseWidth}%`;
     };
 
-    const getBarHeight = value => {
+    const getBarHeight = (value) => {
         const maxHeight = 90;
         const minHeight = 5;
-        return `${Math.min(value * (maxHeight - minHeight) + minHeight, maxHeight)}%`; // Values are 0-1
+        return `${Math.min(value * (maxHeight - minHeight) + minHeight, maxHeight)}%`;
     };
 
     const getBucketBarColor = (bucketIdx, elementIdx) => {
@@ -240,230 +295,226 @@ const BucketSortVisualizer = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     className="w-full max-w-7xl bg-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-indigo-600/40 overflow-hidden"
                 >
-                    <h1 className="text-5xl font-extrabold mb-10 text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 tracking-tight">
-                        Bucket Sort Visualizer
-                    </h1>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-10">
+                        <h1 className="text-5xl font-extrabold text-center md:text-left bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 tracking-tight">
+                            Bucket Sort Visualizer
+                        </h1>
+                        <div className="mt-4 md:mt-0 flex gap-3">
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={toggleVisualization}
+                                className={`flex items-center justify-center gap-2 p-3 rounded-xl text-base font-semibold ${showLinkedList ? 'bg-pink-600' : 'bg-indigo-600'} hover:brightness-125 transition-all duration-300`}
+                            >
+                                <FaExchangeAlt /> {showLinkedList ? 'Show Array' : 'Show Linked List'}
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setShowAlgoModal(true)}
+                                className="flex items-center justify-center gap-2 p-3 rounded-xl text-base font-semibold bg-blue-600 hover:brightness-125 transition-all duration-300"
+                            >
+                                <FaInfo /> Algorithm Details
+                            </motion.button>
+                        </div>
+                    </div>
 
                     {/* Controls */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-                        {[
-                            { icon: <FaPlay />, text: 'Start', onClick: handleStart, disabled: sorting || completed, bg: 'bg-emerald-600' },
-                            { icon: <FaPause />, text: 'Pause', onClick: handlePause, disabled: !sorting, bg: 'bg-amber-600' },
-                            { icon: <FaRedo />, text: 'Reset', onClick: handleReset, bg: 'bg-rose-600' },
-                            { icon: <FaRandom />, text: 'Random', onClick: generateRandomArray, disabled: sorting, bg: 'bg-purple-600' },
-                            { icon: <FaEdit />, text: 'Custom', onClick: () => setShowInputModal(true), disabled: sorting, bg: 'bg-teal-600' },
-                        ].map((btn, idx) => (
-                            <motion.button
-                                key={idx}
-                                whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(255,255,255,0.2)' }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={btn.onClick}
-                                disabled={btn.disabled}
-                                className={`flex items-center justify-center gap-2 p-4 rounded-xl text-lg font-semibold ${btn.bg} ${btn.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-125'} transition-all duration-300`}
-                            >
-                                {btn.icon} {btn.text}
-                            </motion.button>
-                        ))}
-                        <div className="flex flex-col gap-3">
-                            <label className="flex items-center gap-2 text-lg font-semibold">
-                                <FaChartBar /> Size
-                            </label>
-                            <input
-                                type="range"
-                                min="5"
-                                max="50"
-                                value={arraySize}
-                                onChange={e => handleArraySizeChange(parseInt(e.target.value))}
-                                disabled={sorting}
-                                className="w-full accent-indigo-500 cursor-pointer"
-                            />
-                            <span className="text-xs text-gray-300">{array.length} elements</span>
-                        </div>
-                        <div className="flex flex-col gap-3">
-                            <label className="flex items-center gap-2 text-lg font-semibold">
-                                <MdSpeed /> Speed
-                            </label>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleStart}
+                            disabled={sorting || completed}
+                            className="flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-xl text-base font-semibold disabled:opacity-50 hover:brightness-125 transition-all duration-300"
+                        >
+                            <FaPlay /> Start
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handlePause}
+                            disabled={!sorting}
+                            className="flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl text-base font-semibold disabled:opacity-50 hover:brightness-125 transition-all duration-300"
+                        >
+                            <FaPause /> Pause
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleReset}
+                            className="flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-gray-600 to-gray-500 rounded-xl text-base font-semibold hover:brightness-125 transition-all duration-300"
+                        >
+                            <FaRedo /> Reset
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={generateRandomArray}
+                            disabled={sorting}
+                            className="flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl text-base font-semibold disabled:opacity-50 hover:brightness-125 transition-all duration-300"
+                        >
+                            <FaRandom /> Randomize
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setShowInputModal(true)}
+                            disabled={sorting}
+                            className="flex items-center justify-center gap-2 p-3 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl text-base font-semibold disabled:opacity-50 hover:brightness-125 transition-all duration-300"
+                        >
+                            <FaEdit /> Custom Input
+                        </motion.button>
+                        <div className="flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl">
+                            <MdSpeed className="text-indigo-400" />
                             <input
                                 type="range"
                                 min="1"
                                 max="100"
                                 value={speed}
-                                onChange={e => setSpeed(parseInt(e.target.value))}
-                                className="w-full accent-indigo-500 cursor-pointer"
+                                onChange={(e) => setSpeed(e.target.value)}
+                                disabled={sorting}
+                                className="w-full accent-indigo-500"
                             />
-                            <span className="text-xs text-gray-300">{speed}%</span>
+                            <span className="text-sm text-gray-300">{speed}ms</span>
                         </div>
                     </div>
 
-                    {/* Statistics */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
-                        {[
-                            { label: 'Comparisons', value: comparisons, color: 'text-cyan-400' },
-                            { label: 'Placements', value: swaps, color: 'text-rose-400' },
-                            { label: 'Status', value: completed ? 'Sorted' : sorting ? 'Sorting' : 'Idle', color: completed ? 'text-emerald-400' : sorting ? 'text-amber-400' : 'text-gray-400' },
-                        ].map((stat, idx) => (
-                            <motion.div
-                                key={idx}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="bg-gray-700/70 p-5 rounded-xl shadow-lg border border-indigo-600/20"
-                            >
-                                <span className="font-semibold text-gray-200">{stat.label}: </span>
-                                <span className={`font-bold ${stat.color}`}>{stat.value}</span>
-                            </motion.div>
-                        ))}
-                    </div>
-
-                    {/* Main Array Visualization */}
-                    <div className="bg-gray-700/70 rounded-3xl p-6 h-96 flex items-end justify-center gap-2 overflow-x-auto border border-indigo-600/40">
-                        {array.map((value, index) => (
-                            <motion.div
-                                key={index}
-                                className={`${getBarColor(index)} rounded-t-xl shadow-lg relative flex items-center justify-center transition-all duration-300`}
-                                style={{
-                                    height: getBarHeight(value),
-                                    width: getBarWidth(),
-                                    maxWidth: '50px',
-                                    minWidth: '8px',
-                                }}
-                                animate={{
-                                    y: currentIndices.includes(index) ? -15 : 0,
-                                    scale: currentIndices.includes(index) ? 1.05 : 1,
-                                    transition: { duration: 0.3 },
-                                }}
-                            >
-                                {array.length <= 30 && (
-                                    <span className="text-white text-xs font-mono font-bold absolute top-2 left-1/2 transform -translate-x-1/2 drop-shadow-lg">
-                                        {value.toFixed(2)}
-                                    </span>
-                                )}
-                            </motion.div>
-                        ))}
-                    </div>
-
-                    {/* Buckets Visualization */}
-                    {buckets.length > 0 && (
-                        <div className="mt-8 bg-gray-700/70 rounded-3xl p-6 border border-indigo-600/40">
-                            <h3 className="text-xl font-semibold text-indigo-300 mb-4">Buckets</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                {buckets.map((bucket, bucketIdx) => (
+                    {/* Visualization Area */}
+                    {!showLinkedList ? (
+                        <div className="mb-10">
+                            <h2 className="text-2xl font-semibold text-indigo-300 mb-4">Array Visualization</h2>
+                            <div className="flex justify-center items-end h-96 bg-gray-900/50 rounded-xl p-4 border border-indigo-500/30">
+                                {array.map((value, index) => (
                                     <motion.div
-                                        key={bucketIdx}
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className={`bg-gray-800/70 rounded-2xl p-3 border ${bucketIndex === bucketIdx ? 'border-yellow-500/50' : 'border-indigo-600/40'}`}
+                                        key={index}
+                                        initial={{ height: 0 }}
+                                        animate={{ height: getBarHeight(value) }}
+                                        transition={{ duration: 0.3 }}
+                                        className={`flex items-end justify-center mx-1 rounded-t-lg shadow-lg ${getBarColor(index)}`}
+                                        style={{ width: getBarWidth(), height: getBarHeight(value) }}
                                     >
-                                        <h4 className="text-base font-semibold text-indigo-300 mb-2">
-                                            Bucket {bucketIdx} ({bucket.length})
-                                        </h4>
-                                        <div className="flex gap-2 overflow-x-auto">
-                                            {bucket.map((value, elementIdx) => (
-                                                <motion.div
-                                                    key={elementIdx}
-                                                    className={`${getBucketBarColor(bucketIdx, elementIdx)} rounded-t-xl shadow-lg relative flex items-center justify-center transition-all duration-300`}
-                                                    style={{
-                                                        height: `${value * 80 + 10}%`,
-                                                        width: '15px',
-                                                        minWidth: '8px',
-                                                    }}
-                                                    animate={{
-                                                        scale: bucketIndex === bucketIdx && elementInBucketIndex === elementIdx ? 1.1 : 1,
-                                                        transition: { duration: 0.3 },
-                                                    }}
-                                                >
-                                                    {bucket.length <= 10 && (
-                                                        <span className="text-white text-xs font-mono font-bold absolute top-1 left-1/2 transform -translate-x-1/2 drop-shadow-lg">
-                                                            {value.toFixed(2)}
-                                                        </span>
-                                                    )}
-                                                </motion.div>
-                                            ))}
-                                        </div>
+                                        <span className="text-xs text-white font-medium">{value.toFixed(2)}</span>
                                     </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="mb-10">
+                            <h2 className="text-2xl font-semibold text-purple-300 mb-4">Linked List Buckets</h2>
+                            <div className="bg-gray-900/50 rounded-xl p-4 border border-purple-500/30">
+                                {linkedListBuckets.map((bucket, bIdx) => (
+                                    <div key={bIdx} className="mb-4">
+                                        <h3 className="text-lg font-medium text-purple-400">Bucket {bIdx}</h3>
+                                        <div className="flex flex-wrap gap-4 items-center">
+                                            {bucket.length > 0 ? (
+                                                bucket.map((node, idx) => (
+                                                    <motion.div
+                                                        key={idx}
+                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        className="flex items-center gap-2"
+                                                    >
+                                                        <div
+                                                            className={`w-12 h-12 flex items-center justify-center rounded-full text-white font-semibold ${node.highlighted ? 'bg-gradient-to-t from-cyan-600 to-cyan-400' : getBucketBarColor(bIdx, idx)}`}
+                                                        >
+                                                            {node.value.toFixed(2)}
+                                                        </div>
+                                                        {node.next !== null && (
+                                                            <FaLink className="text-purple-400" />
+                                                        )}
+                                                    </motion.div>
+                                                ))
+                                            ) : (
+                                                <p className="text-gray-400">Empty</p>
+                                            )}
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         </div>
                     )}
 
-                    {/* Explanation */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-indigo-600/40"
-                    >
-                        <h2 className="text-3xl font-bold mb-6 text-indigo-400">Bucket Sort Explained</h2>
-                        <p className="text-gray-200 mb-6">
-                            Bucket Sort distributes elements into buckets based on their value range, sorts each bucket individually (here using insertion sort), and then concatenates them back into the array.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Buckets Visualization */}
+                    <div className="mb-10">
+                        <h2 className="text-2xl font-semibold text-purple-300 mb-4">Buckets</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 bg-gray-900/50 rounded-xl p-4 border border-purple-500/30">
+                            {buckets.map((bucket, bIdx) => (
+                                <div key={bIdx} className="flex flex-col items-center">
+                                    <span className="text-sm text-purple-400 mb-2">Bucket {bIdx}</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {bucket.map((value, idx) => (
+                                            <motion.div
+                                                key={idx}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className={`w-10 h-10 flex items-center justify-center rounded-md text-white font-medium ${getBucketBarColor(bIdx, idx)}`}
+                                            >
+                                                {value.toFixed(2)}
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Statistics */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div className="p-4 bg-gray-700/50 rounded-xl flex items-center gap-3">
+                            <FaChartBar className="text-indigo-400" />
                             <div>
-                                <h3 className="text-xl font-semibold text-indigo-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li>
-                                        <span className="font-semibold text-indigo-400">Time Complexity:</span> O(n + k) best, O(n²) worst
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold text-indigo-400">Space Complexity:</span> O(n + k)
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold text-indigo-400">Stability:</span> Stable (with stable bucket sort)
-                                    </li>
-                                    <li>
-                                        <span className="font-semibold text-indigo-400">Adaptive:</span> Yes
-                                    </li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold text-indigo-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
-                                    {`bucketSort(arr):
-    n = arr.length
-    buckets = array of n empty lists
-    for i = 0 to n-1:
-        index = floor(arr[i] * n)
-        buckets[index].append(arr[i])
-    for i = 0 to n-1:
-        insertionSort(buckets[i])
-    concatenate all buckets into arr
-    return arr`}
-                                </pre>
+                                <p className="text-sm text-gray-300">Comparisons</p>
+                                <p className="text-lg font-semibold text-white">{comparisons}</p>
                             </div>
                         </div>
-                    </motion.div>
+                        <div className="p-4 bg-gray-700/50 rounded-xl flex items-center gap-3">
+                            <FaExchangeAlt className="text-purple-400" />
+                            <div>
+                                <p className="text-sm text-gray-300">Swaps</p>
+                                <p className="text-lg font-semibold text-white">{swaps}</p>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-gray-700/50 rounded-xl flex items-center gap-3">
+                            <MdSpeed className="text-teal-400" />
+                            <div>
+                                <p className="text-sm text-gray-300">Speed</p>
+                                <p className="text-lg font-semibold text-white">{speed}ms</p>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>
                         {showInputModal && (
                             <motion.div
-                                className="fixed inset-0 flex items-center justify-center z-50"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+                                className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
                             >
                                 <motion.div
                                     ref={modalRef}
-                                    className="bg-gray-800 rounded-3xl shadow-2xl p-6 w-full max-w-lg border border-indigo-600/40"
-                                    initial={{ scale: 0.9, y: 20 }}
-                                    animate={{ scale: 1, y: 0 }}
-                                    exit={{ scale: 0.9, y: 20 }}
+                                    initial={{ scale: 0.9 }}
+                                    animate={{ scale: 1 }}
+                                    exit={{ scale: 0.9 }}
+                                    className="bg-gray-800 p-6 rounded-xl w-full max-w-md border border-indigo-500/30"
                                 >
-                                    <h2 className="text-3xl font-bold mb-4 text-indigo-400">Custom Array Input</h2>
-                                    <input
-                                        type="text"
+                                    <h3 className="text-xl font-semibold text-indigo-300 mb-4">Custom Array Input</h3>
+                                    <textarea
                                         value={customInput}
-                                        onChange={e => setCustomInput(e.target.value)}
-                                        placeholder="e.g., 0.1, 0.2, 0.3"
-                                        className="w-full p-4 bg-gray-700 rounded-lg text-white border border-indigo-600/40 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition-all mb-3"
+                                        onChange={(e) => setCustomInput(e.target.value)}
+                                        placeholder="Enter numbers (0-1) separated by commas, spaces, or semicolons"
+                                        className="w-full p-3 bg-gray-700 rounded-lg border border-indigo-500/30 text-white focus:outline-none focus:border-indigo-500"
+                                        rows="4"
                                     />
-                                    {inputError && <p className="text-rose-400 text-sm mb-3">{inputError}</p>}
-                                    <p className="text-gray-300 text-sm mb-4">Enter numbers 0-1 (max 50 elements)</p>
-                                    <div className="flex gap-4 justify-end">
+                                    {inputError && <p className="text-red-400 text-sm mt-2">{inputError}</p>}
+                                    <div className="flex justify-end gap-3 mt-4">
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => setShowInputModal(false)}
-                                            className="bg-rose-600 hover:brightness-125 text-white py-2 px-4 rounded-lg transition-all"
+                                            className="px-4 py-2 bg-gray-600 rounded-lg hover:bg-gray-700"
                                         >
                                             Cancel
                                         </motion.button>
@@ -471,9 +522,42 @@ const BucketSortVisualizer = () => {
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={handleCustomArray}
-                                            className="bg-teal-600 hover:brightness-125 text-white py-2 px-4 rounded-lg transition-all"
+                                            className="px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-700"
                                         >
-                                            Submit
+                                            Apply
+                                        </motion.button>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Algorithm Details Modal */}
+                    <AnimatePresence>
+                        {showAlgoModal && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                            >
+                                <motion.div
+                                    ref={algoModalRef}
+                                    initial={{ scale: 0.9 }}
+                                    animate={{ scale: 1 }}
+                                    exit={{ scale: 0.9 }}
+                                    className="bg-gray-800 p-6 rounded-xl w-full max-w-4xl border border-blue-500/30 overflow-y-auto max-h-[80vh]"
+                                >
+                                    <h3 className="text-xl font-semibold text-blue-300 mb-4">Bucket Sort Details</h3>
+                                    <BucketSortExplanation />
+                                    <div className="flex justify-end mt-4">
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => setShowAlgoModal(false)}
+                                            className="px-4 py-2 bg-gray-600 rounded-lg hover:bg-gray-700"
+                                        >
+                                            Close
                                         </motion.button>
                                     </div>
                                 </motion.div>
