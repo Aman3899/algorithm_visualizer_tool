@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, Pause, RefreshCw, Shuffle, ChartBar, Search, Edit, FastForward } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import FibonacciSearchExplanation from '@/components/searching/fibonacci_explanation';
 
 const FibonacciSearchVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -339,56 +340,9 @@ const FibonacciSearchVisualizer = () => {
                         </AnimatePresence>
                     </div>
 
-                    {/* Explanation */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-purple-600/40"
-                    >
-                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Fibonacci Search Explained</h2>
-                        <p className="text-gray-200 mb-6">
-                            Fibonacci Search is a comparison-based technique that leverages Fibonacci numbers to efficiently search a sorted array. It avoids division operations (unlike Binary Search) by using addition and subtraction, making it suitable for certain hardware or uniformly distributed data.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(log n)</li>
-                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1)</li>
-                                    <li><span className="font-semibold text-purple-400">Prerequisite:</span> Sorted array</li>
-                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Uniform data, division-free search</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
-                                    {`fibonacciSearch(arr, target):
-    fibM2 = 0, fibM1 = 1, fibM = fibM1 + fibM2
-    offset = -1
-    while fibM < arr.length:
-        fibM2 = fibM1
-        fibM1 = fibM
-        fibM = fibM1 + fibM2
-    while fibM > 1:
-        i = min(offset + fibM2, arr.length - 1)
-        if arr[i] == target:
-            return i
-        if arr[i] < target:
-            offset = i
-            fibM = fibM1
-            fibM1 = fibM2
-            fibM2 = fibM - fibM1
-        else:
-            fibM = fibM2
-            fibM1 = fibM1 - fibM2
-            fibM2 = fibM - fibM1
-    if fibM1 == 1 and arr[offset + 1] == target:
-        return offset + 1
-    return -1`}
-                                </pre>
-                            </div>
-                        </div>
-                    </motion.div>
+
+                    <FibonacciSearchExplanation />
+
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>

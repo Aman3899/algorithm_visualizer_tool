@@ -5,6 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaSearch, FaEdit } from 
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import TernarySearchExplanation from '@/components/searching/ternary_explanation';
 
 const TernarySearchVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -313,51 +314,7 @@ const TernarySearchVisualizer = () => {
                         ))}
                     </div>
 
-                    {/* Explanation */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-purple-600/40"
-                    >
-                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Ternary Search Explained</h2>
-                        <p className="text-gray-200 mb-6">
-                            Ternary Search divides the search space into three parts by calculating two midpoints (mid1 and mid2). It compares the target with these points to narrow down the search to one of three segments, repeating until the target is found or the space is exhausted.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(log₃ n)</li>
-                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1) iterative, O(log n) recursive</li>
-                                    <li><span className="font-semibold text-purple-400">Prerequisite:</span> Array must be sorted</li>
-                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Sorted arrays or unimodal functions</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
-                                    {`ternarySearch(arr, target):
-    low = 0
-    high = arr.length - 1
-    while low <= high:
-        mid1 = low + (high - low) / 3
-        mid2 = high - (high - low) / 3
-        if arr[mid1] == target:
-            return mid1
-        if arr[mid2] == target:
-            return mid2
-        if target < arr[mid1]:
-            high = mid1 - 1
-        else if target > arr[mid2]:
-            low = mid2 + 1
-        else:
-            low = mid1 + 1
-            high = mid2 - 1
-    return -1 // Not found`}
-                                </pre>
-                            </div>
-                        </div>
-                    </motion.div>
+                    <TernarySearchExplanation />
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>

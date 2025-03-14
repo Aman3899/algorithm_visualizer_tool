@@ -5,6 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaSearch, FaEdit } from 
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import InterpolationSearchExplanation from '@/components/searching/interpolation_explanation';
 
 const InterpolationSearchVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -301,45 +302,7 @@ const InterpolationSearchVisualizer = () => {
                         ))}
                     </div>
 
-                    {/* Explanation */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-purple-600/40"
-                    >
-                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Interpolation Search Explained</h2>
-                        <p className="text-gray-200 mb-6">
-                            Interpolation Search is an improved variant of binary search for uniformly distributed sorted arrays. Instead of always checking the middle, it estimates the position of the target based on the values at the bounds, using linear interpolation.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(log log n) average, O(n) worst</li>
-                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1)</li>
-                                    <li><span className="font-semibold text-purple-400">Prerequisite:</span> Sorted, uniformly distributed data</li>
-                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Large, evenly distributed datasets</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
-                                    {`interpolationSearch(arr, target):
-    low = 0
-    high = arr.length - 1
-    while low <= high AND target >= arr[low] AND target <= arr[high]:
-        pos = low + [(target - arr[low]) * (high - low)] / (arr[high] - arr[low])
-        if arr[pos] == target:
-            return pos
-        else if arr[pos] < target:
-            low = pos + 1
-        else:
-            high = pos - 1
-    return -1 // Not found`}
-                                </pre>
-                            </div>
-                        </div>
-                    </motion.div>
+                    <InterpolationSearchExplanation />
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>

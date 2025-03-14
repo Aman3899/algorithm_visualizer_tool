@@ -5,6 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaSearch, FaEdit } from 
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import ExponentialSearchExplanation from '@/components/searching/exponential_explanation';
 
 const ExponentialSearchVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -323,51 +324,7 @@ const ExponentialSearchVisualizer = () => {
                         ))}
                     </div>
 
-                    {/* Explanation */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-purple-600/40"
-                    >
-                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Exponential Search Explained</h2>
-                        <p className="text-gray-200 mb-6">
-                            Exponential Search finds a range where the target might exist by exponentially increasing the index (doubling it) until it overshoots, then performs a binary search within that range. It’s particularly useful for unbounded searches or when the target is near the start.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(log n)</li>
-                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1)</li>
-                                    <li><span className="font-semibold text-purple-400">Prerequisite:</span> Array must be sorted</li>
-                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Large sorted arrays, unbounded searches</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
-                                    {`exponentialSearch(arr, target):
-    if arr[0] == target:
-        return 0
-    i = 1
-    while i < arr.length AND arr[i] <= target:
-        i = i * 2
-    return binarySearch(arr, target, i/2, min(i, arr.length-1))
-
-binarySearch(arr, target, low, high):
-    while low <= high:
-        mid = (low + high) / 2
-        if arr[mid] == target:
-            return mid
-        else if arr[mid] < target:
-            low = mid + 1
-        else:
-            high = mid - 1
-    return -1 // Not found`}
-                                </pre>
-                            </div>
-                        </div>
-                    </motion.div>
+                    <ExponentialSearchExplanation />
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>

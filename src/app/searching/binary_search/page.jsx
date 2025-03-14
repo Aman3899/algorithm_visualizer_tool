@@ -5,6 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaSearch, FaEdit } from 
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import Binary from '@/components/searching/binary_explanation';
 
 const BinarySearchVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -297,45 +298,8 @@ const BinarySearchVisualizer = () => {
                         ))}
                     </div>
 
-                    {/* Explanation */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-purple-600/40"
-                    >
-                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Binary Search Explained</h2>
-                        <p className="text-gray-200 mb-6">
-                            Binary Search is an efficient algorithm for finding a target value in a sorted array. It repeatedly divides the search interval in half, comparing the target with the middle element and narrowing the range accordingly.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(log n)</li>
-                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1) iterative, O(log n) recursive</li>
-                                    <li><span className="font-semibold text-purple-400">Prerequisite:</span> Array must be sorted</li>
-                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Static sorted datasets</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
-                                    {`binarySearch(arr, target):
-    low = 0
-    high = arr.length - 1
-    while low <= high:
-        mid = (low + high) / 2
-        if arr[mid] == target:
-            return mid
-        else if arr[mid] < target:
-            low = mid + 1
-        else:
-            high = mid - 1
-    return -1 // Not found`}
-                                </pre>
-                            </div>
-                        </div>
-                    </motion.div>
+
+                    <Binary />
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>

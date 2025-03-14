@@ -5,7 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaSearch } from 'react-i
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
-import BFS_Explanation from '@/components/bfs_explanation';
+import BFS_Explanation from '@/components/searching/bfs_explanation';
 
 const BFSVisualizer = () => {
     const [graph, setGraph] = useState({});

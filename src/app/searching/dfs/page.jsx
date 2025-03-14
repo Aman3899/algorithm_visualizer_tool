@@ -5,7 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaSearch } from 'react-i
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
-import DFS_Explanation from '@/components/dfs_explanation';
+import DFS_Explanation from '@/components/searching/dfs_explanation';
 
 
 const DFSVisualizer = () => {

@@ -5,6 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaSearch, FaEdit } from 
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import LinearSearchExplanation from '@/components/searching/linear_explanation';
 
 const LinearSearchVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -276,38 +277,9 @@ const LinearSearchVisualizer = () => {
                         ))}
                     </div>
 
-                    {/* Explanation */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-purple-600/40"
-                    >
-                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Linear Search Explained</h2>
-                        <p className="text-gray-200 mb-6">
-                            Linear Search is a simple algorithm that sequentially checks each element in an array until it finds the target value or exhausts the list. It’s straightforward but inefficient for large datasets.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(n)</li>
-                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1)</li>
-                                    <li><span className="font-semibold text-purple-400">Prerequisite:</span> None (works on unsorted data)</li>
-                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Small or unsorted datasets</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
-                                    {`linearSearch(arr, target):
-    for i = 0 to arr.length - 1:
-        if arr[i] == target:
-            return i
-    return -1 // Not found`}
-                                </pre>
-                            </div>
-                        </div>
-                    </motion.div>
+                    
+                    <LinearSearchExplanation />
+
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>
@@ -366,6 +338,8 @@ const LinearSearchVisualizer = () => {
                         )}
                     </AnimatePresence>
                 </motion.div>
+
+
             </div>
         </>
     );

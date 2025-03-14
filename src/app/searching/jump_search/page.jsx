@@ -5,6 +5,7 @@ import { FaPlay, FaPause, FaRedo, FaRandom, FaChartBar, FaSearch, FaEdit } from 
 import { MdSpeed } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
+import JumpSearchExplanation from '@/components/searching/jump_explanation';
 
 const JumpSearchVisualizer = () => {
     const [array, setArray] = useState([]);
@@ -307,46 +308,7 @@ const JumpSearchVisualizer = () => {
                         ))}
                     </div>
 
-                    {/* Explanation */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="mt-10 bg-gray-700/70 p-8 rounded-3xl shadow-lg border border-purple-600/40"
-                    >
-                        <h2 className="text-3xl font-bold mb-6 text-purple-400">Jump Search Explained</h2>
-                        <p className="text-gray-200 mb-6">
-                            Jump Search is an algorithm for sorted arrays that jumps ahead by fixed steps (typically √n) to find the block containing the target, then performs a linear search within that block. It balances the efficiency of binary search with simplicity.
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Key Details</h3>
-                                <ul className="text-gray-200 list-disc list-inside">
-                                    <li><span className="font-semibold text-purple-400">Time Complexity:</span> O(√n)</li>
-                                    <li><span className="font-semibold text-purple-400">Space Complexity:</span> O(1)</li>
-                                    <li><span className="font-semibold text-purple-400">Prerequisite:</span> Array must be sorted</li>
-                                    <li><span className="font-semibold text-purple-400">Best Use:</span> Sorted arrays with fewer memory accesses</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-semibold text-purple-300 mb-2">Pseudocode</h3>
-                                <pre className="bg-gray-800 p-4 rounded-lg text-sm text-gray-200 overflow-x-auto">
-                                    {`jumpSearch(arr, target):
-    n = arr.length
-    step = √n
-    prev = 0
-    while arr[min(step, n)-1] < target:
-        prev = step
-        step += √n
-        if prev >= n:
-            return -1
-    for i = prev to min(step, n)-1:
-        if arr[i] == target:
-            return i
-    return -1 // Not found`}
-                                </pre>
-                            </div>
-                        </div>
-                    </motion.div>
+                    <JumpSearchExplanation />
 
                     {/* Custom Input Modal */}
                     <AnimatePresence>
